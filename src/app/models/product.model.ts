@@ -29,3 +29,30 @@ export async function SortProducts(sort: string) {
   );
   return rows;
 }
+
+export async function findProductsWithPagination(
+  sort: string,
+  limit: number,
+  offset: number
+) {
+  let orderBy = "id DESC";
+
+  if (sort === "price-asc") orderBy = "price ASC";
+  if (sort === "price-desc") orderBy = "price DESC";
+  if (sort === "newest") orderBy = "created_at DESC";
+
+
+  const [rows] = await pool.query(
+    `SELECT * FROM products ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+    [limit, offset]
+  );
+
+  return rows;
+}
+
+export async function countProducts() {
+  const [rows]: any = await pool.query(
+    "SELECT COUNT(*) as total FROM products"
+  );
+  return rows[0].total;
+}

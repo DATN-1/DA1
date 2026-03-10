@@ -1,4 +1,4 @@
-import HeroCarousel from "../../controller/carousel/HeroCarousel";
+import HeroCarousel from "../../src/app/controllers/carousel/HeroCarousel";
 import Link from "next/link";
 
 export default function HeroSection(){

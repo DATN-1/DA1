@@ -3,9 +3,21 @@
 import "@/style/products.css";
 import Link from "next/link";
 import useCartControllers from "../cart/useCartControllers";
+import { useEffect, useState } from "react";
+import { ProductType } from "./productType";
+
 
 export default function Product(){
     const { addToCart: cartAddToCart } = useCartControllers();
+    const [products, setProducts] = useState<ProductType[]>([]);
+   
+    useEffect(() => {
+        fetch('/api/products')
+            .then(res => res.json())
+            .then(data => setProducts(data))
+    }, []);
+
+    
     
     return (
         <main>
@@ -122,16 +134,29 @@ export default function Product(){
                     {/* <!-- Products Grid --> */}
                     <div className="products-grid" id="productsGrid">
                 {/* <!-- Product 1 --> */}
-                <div className="product-card">
+                {products.map((product) => {
+                    const productImage =
+                    typeof product.image === "string"
+                    ? (() => {
+                    try {
+                    const parsed = JSON.parse(product.image);
+                        return Array.isArray(parsed) && parsed[0] ? parsed[0] : product.image;
+                    } catch {
+                        return product.image;
+                    }
+                    })()
+                    : product.image;
+                    return (
+                <div key={product.id} className="product-card">
                     <div className="product-image-container">
-                        <img src="../images/lavender.jpg" alt="Lavender Bliss" className="product-image" />
+                        <img src={productImage} alt={product.name} className="product-image" />
                         <div className="product-badge">New</div>
                     </div>
                     <div className="product-info">
-                        <h3 className="product-name">Lavender Bliss</h3>
-                        <p className="product-description">Hương oải hương nhẹ nhàng</p>
+                        <h3 className="product-name">{product.name}</h3>
+                        <p className="product-description">{product.description}</p>
                         <div className="product-footer">
-                            <span className="product-price">350.000đ</span>
+                            <span className="product-price">{new Intl.NumberFormat('vi-VN').format((product.price || 0 ) * 25000)} VND</span>
                             <div className="rating">
                                 <svg className="star" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
                                 <svg className="star" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
@@ -141,7 +166,7 @@ export default function Product(){
                             </div>
                         </div>
                         <div className="product-actions">
-                            <Link href="/product-detail/1" className="btn btn-dark">Xem Chi Tiết</Link>
+                            <Link href={`/products/${String(product.id)}`} className="btn btn-dark">Xem Chi Tiết</Link>
                             <button 
                             className="btn btn-amber" 
                             onClick={() => 
@@ -155,7 +180,8 @@ export default function Product(){
                         </div>
                     </div>
                 </div>
-
+                );
+                })}
                 {/* Product 2 */}
                 <div className="product-card">
                     <div className="product-image-container">

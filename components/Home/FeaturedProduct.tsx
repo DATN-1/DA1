@@ -1,4 +1,4 @@
-import ProductCarousel from "../../controller/carousel/ProductCarousel";
+import ProductCarousel from "../../src/app/controllers/carousel/ProductCarousel";
 import Link from "next/link";
 
 export default function FeaturedProductSection(){

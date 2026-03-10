@@ -1,7 +1,20 @@
-import ProductCarousel from "../../controller/carousel/ProductCarousel";
+'use client';
+
+import ProductCarousel from "../../src/app/controllers/carousel/ProductCarousel";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { format } from "url";
 
 export default function BestSellerSection(){
+    const [products, setProducts] = useState([]);
+    
+    useEffect(() => {
+        fetch('/api/products')
+            .then(res => res.json())
+            .then(data => setProducts(data))
+            .catch(err => console.error(err));
+    }, []);
+    
     return(
         <section className="gradient-bg" style={{padding: "3rem 0"}}>
             <div className="container">
@@ -11,21 +24,24 @@ export default function BestSellerSection(){
                 </div>
                 <ProductCarousel>
             {/* <!-- Product 1 --> */}
-            <div className="product-card">
+            {products.map((product: any) => (
+            <div
+             key={product.id}
+             className="product-card">
               <div className="product-image-container">
                 <img
-                  src="../images/lavender.jpg"
-                  alt="Lavender Bliss"
+                  src={product.image}
+                  alt={product.name}
                   className="product-image" />
                 <div className="product-badge" style={{background: "#ef4444"}}>
                   Bestseller
                 </div>
               </div>
               <div className="product-info">
-                <h3 className="product-name">Lavender Bliss</h3>
-                <p className="product-description">Hương oải hương nhẹ nhàng</p>
+                <h3 className="product-name">{product.name}</h3>
+                <p className="product-description">{product.description}</p>
                 <div className="product-footer">
-                  <span className="product-price">350.000đ</span>
+                  <span className="product-price">{new Intl.NumberFormat('vi-VN').format((product.price || 0) * 25000)} VND</span>
                   <div className="rating">
                     <svg className="star" viewBox="0 0 20 20">
                       <path
@@ -49,11 +65,11 @@ export default function BestSellerSection(){
                     </svg>
                   </div>
                 </div>
-                <div className="sales-count">Đã bán: 2,345</div>
-                <Link href="/product-detail/1" className="btn btn-gradient btn-full">Xem Chi Tiết</Link>
+                <div className="sales-count">Đã bán: {product.salesCount}</div>
+                <Link href={`/products/${product.id}`} className="btn btn-gradient btn-full">Xem Chi Tiết</Link>
               </div>
             </div>
-
+            ))}
             {/* <!-- Product 2 --> */}
             <div className="product-card">
               <div className="product-image-container">

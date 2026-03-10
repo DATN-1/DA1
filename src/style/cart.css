@@ -1,0 +1,259 @@
+/* Cart Page Styles */
+.cart-section {
+  padding: 5rem 0;
+  min-height: 80vh;
+}
+
+.cart-container {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 2.5rem;
+  margin-top: 3rem;
+}
+
+/* Cart Table/List */
+.cart-items-wrapper {
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cart-table th {
+  text-align: left;
+  padding-bottom: 1.5rem;
+  color: #6b7280;
+  font-weight: 600;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.cart-item {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+.item-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+}
+
+.item-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 1rem;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.item-details h3 {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.item-details p {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.item-price {
+  font-weight: 700;
+  color: #d97706;
+}
+
+/* Quantity Controls in Cart */
+.cart-qty {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  width: fit-content;
+}
+
+.qty-btn-sm {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: #374151;
+  transition: background 0.3s;
+}
+
+.qty-btn-sm:hover {
+  background: #f9fafb;
+}
+
+.qty-input-sm {
+  width: 3rem;
+  text-align: center;
+  border: none;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.remove-btn {
+  color: #ef4444;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.remove-btn:hover {
+  background: #fef2f2;
+}
+
+/* Cart Summary Sidebar */
+.cart-summary {
+  background: white;
+  padding: 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+}
+
+.summary-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+  border-bottom: 2px solid #f3f4f6;
+  padding-bottom: 1rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  color: #4b5563;
+}
+
+.summary-row.total {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #f3f4f6;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.summary-row.total .price {
+  color: #d97706;
+}
+
+.promo-code {
+  margin-top: 1.5rem;
+}
+
+.promo-input-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.promo-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.btn-apply {
+  padding: 0.75rem 1.25rem;
+  background: #1f2937;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.checkout-btn {
+  width: 100%;
+  margin-top: 2rem;
+  padding: 1.25rem;
+  font-size: 1.125rem;
+}
+
+.continue-shopping {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  color: #6b7280;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.continue-shopping:hover {
+  color: #d97706;
+}
+
+/* Empty Cart State */
+.empty-cart {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.empty-cart-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.2;
+}
+
+@media (max-width: 992px) {
+  .cart-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .cart-items-wrapper {
+    padding: 1rem;
+  }
+  
+  .cart-table thead {
+    display: none;
+  }
+  
+  .cart-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 0;
+    gap: 1rem;
+  }
+  
+  .item-info {
+    padding: 0;
+  }
+  
+  .item-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

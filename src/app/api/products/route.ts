@@ -8,6 +8,12 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const sort = searchParams.get("sort") || "popular";
     const page = Number(searchParams.get("page") || "1");
+    const limit = searchParams.get("limit");
+
+    if (limit === "all") {
+      const result = await fetchSortedProductsController(sort, 1);
+      return NextResponse.json({ products: result });
+    }
 
     if(!Number.isInteger(page) || page < 1) {
       return NextResponse.json(

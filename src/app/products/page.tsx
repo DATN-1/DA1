@@ -188,7 +188,7 @@ export default function Product() {
               <div className="products-toolbar">
                 <div className="results-count">
                   Hiển thị <span id="displayedCount">{products.length}</span>{" "}
-                  trong 6 sản phẩm
+                  trong 9 sản phẩm
                 </div>
                 <select
                   className="sort-select"

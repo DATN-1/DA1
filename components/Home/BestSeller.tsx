@@ -9,9 +9,9 @@ export default function BestSellerSection(){
     const [products, setProducts] = useState([]);
     
     useEffect(() => {
-        fetch('/api/products')
+        fetch('/api/products?sort=popular&limit=all')
             .then(res => res.json())
-            .then(data => setProducts(data))
+            .then(data => setProducts(products))
             .catch(err => console.error(err));
     }, []);
     

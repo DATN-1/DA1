@@ -2,6 +2,7 @@
 import {
   getAllProducts,
   getProductById,
+  getSortedProducts
 } from "@/app/services/product.service";
 
 export async function fetchAllProductsController() {
@@ -16,4 +17,9 @@ export async function fetchProductControllerByID(id: string) {
   }
   
   return await getProductById(productId);
+}
+
+export async function fetchSortedProductsController(sort: string) {
+  const products = await getSortedProducts(sort);
+  return products;
 }

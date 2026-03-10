@@ -1,8 +1,10 @@
-
+import { countProducts } from "@/app/models/product.model";
 import {
   getAllProducts,
   getProductById,
-  getSortedProducts
+  getSortedProducts,
+  getProductsPagination,
+  
 } from "@/app/services/product.service";
 
 export async function fetchAllProductsController() {
@@ -19,7 +21,12 @@ export async function fetchProductControllerByID(id: string) {
   return await getProductById(productId);
 }
 
-export async function fetchSortedProductsController(sort: string) {
-  const products = await getSortedProducts(sort);
-  return products;
+export async function fetchSortedProductsController(sort: string, page: number = 1) {
+  return await getProductsPagination(sort, page);
+}
+
+
+export async function fetchProductsPaginationController(sort: string, page: number) {
+  const data = await getProductsPagination(sort, page);
+  return data;
 }

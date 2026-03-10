@@ -7,13 +7,21 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const sort = searchParams.get("sort") || "popular";
+    const page = Number(searchParams.get("page") || "1");
 
-    const products = await fetchSortedProductsController(sort);
+    if(!Number.isInteger(page) || page < 1) {
+      return NextResponse.json(
+        { error: "Trang không hợp lệ" },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json(products);
+    const result = await fetchSortedProductsController(sort, page);
+
+    return NextResponse.json(result);
 
   } catch (error) {
-
+    console.error("API Error: ", error);
     return NextResponse.json(
       { error: "Failed to fetch products" },
       { status: 500 }

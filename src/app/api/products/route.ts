@@ -1,21 +1,24 @@
 import { NextResponse } from "next/server";
-import { fetchAllProductsController } from "@/app/controllers/Product.Controllers";
+import { fetchSortedProductsController } from "@/app/controllers/Product.Controllers";
 
-export async function GET() {
-  try   {
+export async function GET(request: Request) {
 
-    const products = await fetchAllProductsController();
+  try {
+
+    const { searchParams } = new URL(request.url);
+    const sort = searchParams.get("sort") || "popular";
+
+    const products = await fetchSortedProductsController(sort);
 
     return NextResponse.json(products);
-    
+
   } catch (error) {
+
     return NextResponse.json(
-      { error: "Failed to fetch products" }, 
+      { error: "Failed to fetch products" },
       { status: 500 }
     );
+
   }
+
 }
-
-
-
-

@@ -12,3 +12,20 @@ export async function findProductById(id: string) {
   );
   return rows[0];
 }
+
+export async function SortProducts(sort: string) {
+  let orderBy = "id DESC";
+  if (sort === "price-asc") {
+    orderBy = "price ASC";
+  } 
+  if (sort === "price-desc") {
+    orderBy = "price DESC";
+  }
+  if (sort === "newest") {
+    orderBy = "created_at DESC";
+  }
+  const [rows] = await pool.query(
+    `SELECT * FROM products ORDER BY ${orderBy}`
+  );
+  return rows;
+}

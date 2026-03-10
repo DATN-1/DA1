@@ -1,4 +1,4 @@
-import { findAllProducts, findProductById } from "@/app/models/product.model";
+import { findAllProducts, findProductById, SortProducts } from "@/app/models/product.model";
 
 export async function getAllProducts() {
   return await findAllProducts();
@@ -16,4 +16,9 @@ export async function getProductById(id: number) {
   }
 
   return product;
+}
+
+export async function getSortedProducts(sort: string) {
+  const products = await SortProducts(sort);
+  return products;
 }

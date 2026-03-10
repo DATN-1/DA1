@@ -5,18 +5,12 @@ import Link from "next/link";
 import useCartControllers from "../cart/useCartControllers";
 import { useEffect, useState } from "react";
 import { ProductType } from "./productType";
+import useProducts from "./useProducts";
 
 
 export default function Product(){
     const { addToCart: cartAddToCart } = useCartControllers();
-    const [products, setProducts] = useState<ProductType[]>([]);
-   
-    useEffect(() => {
-        fetch('/api/products')
-            .then(res => res.json())
-            .then(data => setProducts(data))
-    }, []);
-
+    const { products, sort, setSort } = useProducts();
     
     
     return (
@@ -122,8 +116,8 @@ export default function Product(){
                 <main className="products-main">
                     {/* Toolbar */}
                     <div className="products-toolbar">
-                        <div className="results-count">Hiển thị <span id="displayedCount">6</span> trong 6 sản phẩm</div>
-                        <select className="sort-select">
+                        <div className="results-count">Hiển thị <span id="displayedCount">{products.length}</span> trong 6 sản phẩm</div>
+                        <select className="sort-select" value={sort} onChange={(e) => setSort(e.target.value)}>
                             <option value="popular">Mặc định phổ biến</option>
                             <option value="price-asc">Giá: Thấp đến Cao</option>
                             <option value="price-desc">Giá: Cao đến Thấp</option>

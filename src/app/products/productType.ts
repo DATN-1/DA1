@@ -19,3 +19,9 @@ export type ProductType = {
     created_at: string
     updated_at: string
 }
+
+export type Props = {
+    sort: string
+    setSort: (value: string) => void
+    count: number
+}

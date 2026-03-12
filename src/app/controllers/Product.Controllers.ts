@@ -20,6 +20,7 @@ export async function fetchProductControllerByID(id: string) {
   
   return await getProductById(productId);
 }
+<<<<<<< HEAD
 
 export async function fetchSortedProductsController(sort: string, page: number = 1) {
   return await getProductsPagination(sort, page);
@@ -30,3 +31,5 @@ export async function fetchProductsPaginationController(sort: string, page: numb
   const data = await getProductsPagination(sort, page);
   return data;
 }
+=======
+>>>>>>> 82e514a128e86524af16a50ac92a0e8fa0ea0759

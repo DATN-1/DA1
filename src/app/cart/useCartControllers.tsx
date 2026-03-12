@@ -17,13 +17,17 @@ type CartItem = {
 export default function useCartControllers() {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [totalAmount, setTotalAmount] = useState(0);
+<<<<<<< HEAD
     const [isClient, setIsClient] = useState(false);
+=======
+>>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
     
     const calculateTotal = () => {
         const total = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
         setTotalAmount(total);
     };
 
+<<<<<<< HEAD
     const dispatchCartUpdate = (newItems: CartItem[]) => {
         if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cartItems: newItems } }));
@@ -62,15 +66,45 @@ export default function useCartControllers() {
       dispatchCartUpdate(newItems);
       
       return newItems;
+=======
+    const addToCart = (item: Omit<CartItem, 'quantity' | 'totalPrice'>) => {
+    setCartItems(prevItems => {
+      const existing = prevItems.find(p => p.id === item.id);
+
+      if (existing) {
+        return prevItems.map(p =>
+          p.id === item.id
+            ? {
+                ...p,
+                quantity: p.quantity + 1,
+                totalPrice: (p.quantity + 1) * p.price
+              }
+            : p
+        );
+      }
+
+      return [
+        ...prevItems,
+        {
+          ...item,
+          quantity: 1,
+          totalPrice: item.price
+        }
+      ];
+>>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
     });
   };
     
     const RemoveItem = (id: string) => {
+<<<<<<< HEAD
         setCartItems(prevItems => {
             const newItems = prevItems.filter(item => item.id !== id);
             dispatchCartUpdate(newItems);
             return newItems;
         });
+=======
+        setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+>>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
     };
     
     const UpdateQty = (id: string, newQuantity: number) => {
@@ -79,6 +113,7 @@ export default function useCartControllers() {
             return;
         }
         
+<<<<<<< HEAD
         setCartItems(prevItems => {
             const newItems = prevItems.map(item => 
                 item.id === id 
@@ -88,11 +123,21 @@ export default function useCartControllers() {
             dispatchCartUpdate(newItems);
             return newItems;
         });
+=======
+        setCartItems(prevItems => 
+            prevItems.map(item => 
+                item.id === id 
+                    ? { ...item, quantity: newQuantity, totalPrice: item.price * newQuantity }
+                    : item
+            )
+        );
+>>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
     };
     
     const handleClearCart = () => {
         setCartItems([]);
         setTotalAmount(0);
+<<<<<<< HEAD
         if (typeof window !== 'undefined') {
             localStorage.removeItem('cartItems');
             window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cartItems: [] } }));
@@ -121,6 +166,13 @@ export default function useCartControllers() {
         }
         calculateTotal();
     }, [cartItems, isClient]);
+=======
+    };
+    
+    useEffect(() => {
+        calculateTotal();
+    }, [cartItems]);
+>>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
 
     return {
         cartItems,

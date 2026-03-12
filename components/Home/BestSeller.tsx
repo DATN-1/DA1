@@ -3,6 +3,7 @@
 import ProductCarousel from "../../src/app/controllers/carousel/ProductCarousel";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+<<<<<<< HEAD
 import useCartControllers from "../../src/app/cart/useCartControllers";
 
 export default function BestSellerSection(){
@@ -13,6 +14,17 @@ export default function BestSellerSection(){
         fetch('/api/products')
             .then(res => res.json())
             .then(data => setProducts(data))
+=======
+import { format } from "url";
+
+export default function BestSellerSection(){
+    const [products, setProducts] = useState([]);
+    
+    useEffect(() => {
+        fetch('/api/products?sort=popular&limit=all')
+            .then(res => res.json())
+            .then(data => setProducts(products))
+>>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
             .catch(err => console.error(err));
     }, []);
     
@@ -67,6 +79,7 @@ export default function BestSellerSection(){
                   </div>
                 </div>
                 <div className="sales-count">Đã bán: {product.salesCount}</div>
+<<<<<<< HEAD
                 <div style={{display: 'flex', gap: '0.5rem'}}>
                   <Link href={`/products/${product.id}`} className="btn btn-dark" style={{flex: 1, padding: '0.5rem 0.75rem', fontSize: '0.875rem'}}>Xem Chi Tiết</Link>
                   <button 
@@ -87,6 +100,9 @@ export default function BestSellerSection(){
                     style={{flex: 1, padding: '0.5rem 0.75rem', fontSize: '0.875rem'}}
                   >Thêm Vào Giỏ</button>
                 </div>
+=======
+                <Link href={`/products/${product.id}`} className="btn btn-gradient btn-full">Xem Chi Tiết</Link>
+>>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
               </div>
             </div>
             ))}

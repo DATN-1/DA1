@@ -301,7 +301,14 @@ export default function Product() {
             </main>
           </div>
         </div>
+<<<<<<< HEAD
       </section>
     </main>
   );
+=======
+    </div>
+</section>
+        </main>
+    )
+>>>>>>> 82e514a128e86524af16a50ac92a0e8fa0ea0759
 }

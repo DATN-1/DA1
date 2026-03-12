@@ -56,3 +56,12 @@ export async function countProducts() {
   );
   return rows[0].total;
 }
+
+export async function incrementSoldCount(orderId: number): Promise<void> {
+  await pool.query(`
+    UPDATE products p
+    JOIN order_items oi ON oi.product_id = p.id
+    SET p.sold_count = p.sold_count + oi.quantity
+    WHERE oi.order_id = ?
+  `, [orderId]);
+}

@@ -12,7 +12,11 @@ export async function GET(request: Request) {
 
     if (limit === "all") {
       const result = await fetchSortedProductsController(sort, 1);
-      return NextResponse.json({ products: result });
+      return NextResponse.json({ 
+        products: result.products ?? result,
+        total: result.total ?? (Array.isArray(result) ? result.length : 0),
+        totalPages: result.totalPages ?? 1, 
+      });
     }
 
     if(!Number.isInteger(page) || page < 1) {

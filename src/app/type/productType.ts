@@ -6,13 +6,13 @@ export type ProductType = {
     image: string
     brand_id: number | null
     category_id: number | null
-
+    sku: string
     name: string
     slug: string
-
+    size: string
     description: string | null
     short_description: string | null
-
+    stock: number
     status: 'active' | 'draft' | 'archived'
     is_featured: number
 

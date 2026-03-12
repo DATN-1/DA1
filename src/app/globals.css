@@ -319,7 +319,6 @@ footer {
   }
 }
 
-<<<<<<< HEAD
 @keyframes slideIn {
   from {
     transform: translateX(400px);
@@ -346,8 +345,6 @@ footer {
   animation: slideIn 0.3s ease-in-out;
 }
 
-=======
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
 /* Breadcrumb */
 .breadcrumb {
   display: flex;

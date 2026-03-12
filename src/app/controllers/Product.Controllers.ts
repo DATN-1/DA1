@@ -1,17 +1,7 @@
-<<<<<<< HEAD
 
 import {
   getAllProducts,
   getProductById,
-=======
-import { countProducts } from "@/app/models/product.model";
-import {
-  getAllProducts,
-  getProductById,
-  getSortedProducts,
-  getProductsPagination,
-  
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
 } from "@/app/services/product.service";
 
 export async function fetchAllProductsController() {
@@ -26,18 +16,4 @@ export async function fetchProductControllerByID(id: string) {
   }
   
   return await getProductById(productId);
-<<<<<<< HEAD
 }
-=======
-}
-
-export async function fetchSortedProductsController(sort: string, page: number = 1) {
-  return await getProductsPagination(sort, page);
-}
-
-
-export async function fetchProductsPaginationController(sort: string, page: number) {
-  const data = await getProductsPagination(sort, page);
-  return data;
-}
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5

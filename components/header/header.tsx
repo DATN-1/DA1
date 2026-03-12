@@ -1,6 +1,5 @@
 'use client';
 import Link from "next/link";
-<<<<<<< HEAD
 import useCartControllers from "@/app/cart/useCartControllers";
 import { useEffect, useState } from "react";
 
@@ -29,11 +28,6 @@ export default function Header(){
             return () => window.removeEventListener('cartUpdated', handleCartUpdate);
         }
     }, []);
-=======
-
-
-export default function Header(){
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
     return(
         <header>
       <div className="container">
@@ -101,11 +95,7 @@ export default function Header(){
                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </Link>
-<<<<<<< HEAD
             <Link href="/cart" className="icon-btn">
-=======
-            <a href="/cart" className="icon-btn">
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
               <svg
                 width="24"
                 height="24"
@@ -118,13 +108,8 @@ export default function Header(){
                   strokeWidth="2"
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-<<<<<<< HEAD
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
-=======
-              <span className="cart-badge">0</span>
-            </a>
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
           </div>
         </div>
       </div>

@@ -6,15 +6,12 @@ import "@/style/cart.css";
 export default function Cart() {
     const { cartItems, totalAmount, RemoveItem, UpdateQty, handleClearCart } = useCartControllers();
     
-<<<<<<< HEAD
     const handleQuantityChange = (id: string, newQty: number) => {
         if (newQty >= 1) {
             UpdateQty(id, newQty);
         }
     };
     
-=======
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
     return (
         <div className="container">
         {/* Breadcrumb */}
@@ -54,7 +51,6 @@ export default function Cart() {
                                 </tr>
                             </thead>
                             <tbody id="cartTableBody">
-<<<<<<< HEAD
                                 {cartItems.length > 0 ? (
                                     cartItems.map((item) => (
                                         <tr key={item.id} className="cart-item" data-price={item.price}>
@@ -97,9 +93,6 @@ export default function Cart() {
                                 {cartItems.length > 0 ? null : (
                                     <>
                                 <tr className="cart-item" data-price="350000" style={{display: 'none'}}>
-=======
-                                <tr className="cart-item" data-price="350000">
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
                                     <td className="item-info">
                                         <img src="images/lavender.jpg" alt="Lavender Bliss" className="item-image" />
                                         <div className="item-details">
@@ -127,11 +120,7 @@ export default function Cart() {
                                         </button>
                                     </td>
                                 </tr>
-<<<<<<< HEAD
                                 <tr className="cart-item" data-price="280000" style={{display: 'none'}}>
-=======
-                                <tr className="cart-item" data-price="280000">
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
                                     <td className="item-info">
                                         <img src="images/vanilla.jpg" alt="Vanilla Dream" className="item-image" />
                                         <div className="item-details">
@@ -160,11 +149,8 @@ export default function Cart() {
                                         </button>
                                     </td>
                                 </tr>
-<<<<<<< HEAD
                                     </>
                                 )}
-=======
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
                             </tbody>
                         </table>
                     </div>
@@ -175,11 +161,7 @@ export default function Cart() {
                     <h2 className="summary-title">Tóm tắt đơn hàng</h2>
                     <div className="summary-row">
                         <span>Tạm tính</span>
-<<<<<<< HEAD
                         <span id="subtotal">{new Intl.NumberFormat('vi-VN').format(totalAmount)} VND</span>
-=======
-                        <span id="subtotal">630.000đ</span>
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
                     </div>
                     <div className="summary-row">
                         <span>Phí vận chuyển</span>
@@ -200,11 +182,7 @@ export default function Cart() {
 
                     <div className="summary-row total">
                         <span>Tổng cộng</span>
-<<<<<<< HEAD
                         <span className="price" id="totalAmount">{new Intl.NumberFormat('vi-VN').format(totalAmount)} VND</span>
-=======
-                        <span className="price" id="totalAmount">630.000đ</span>
->>>>>>> 1e602eb8ac2e589c7f831c8f4b2e4866074d80f5
                     </div>
 
                     <Link href="/checkout" className="btn btn-gradient btn-full checkout-btn" >

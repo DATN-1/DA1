@@ -3,14 +3,15 @@
 import ProductCarousel from "../../src/app/controllers/carousel/ProductCarousel";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import useCartControllers from "../../src/app/cart/useCartControllers";
+import useCartControllers  from "../../src/app/cart/useCartControllers";
+import { format } from "url";
 
 export default function BestSellerSection(){
     const [products, setProducts] = useState([]);
-    const { addToCart } = useCartControllers();
+    const { addToCart: cartAddToCart } = useCartControllers();
     
     useEffect(() => {
-        fetch('/api/products')
+        fetch('/api/products?sort=popular&limit=all')
             .then(res => res.json())
             .then(data => setProducts(data))
             .catch(err => console.error(err));
@@ -77,7 +78,7 @@ export default function BestSellerSection(){
                         : Array.isArray(product.image)
                         ? product.image
                         : [];
-                      addToCart({
+                      cartAddToCart({
                         id: String(product.id),
                         name: product.name,
                         price: (product.price || 0) * 25000,
@@ -87,6 +88,7 @@ export default function BestSellerSection(){
                     style={{flex: 1, padding: '0.5rem 0.75rem', fontSize: '0.875rem'}}
                   >Thêm Vào Giỏ</button>
                 </div>
+                <Link href={`/products/${product.id}`} className="btn btn-gradient btn-full">Xem Chi Tiết</Link>
               </div>
             </div>
             ))}

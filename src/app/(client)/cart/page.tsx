@@ -6,6 +6,12 @@ import "@/style/cart.css";
 export default function Cart() {
     const { cartItems, totalAmount, RemoveItem, UpdateQty, handleClearCart } = useCartControllers();
     
+    const handleQuantityChange = (id: string, newQty: number) => {
+        if (newQty >= 1) {
+            UpdateQty(id, newQty);
+        }
+    };
+    
     return (
         <div className="container">
         {/* Breadcrumb */}
@@ -45,7 +51,48 @@ export default function Cart() {
                                 </tr>
                             </thead>
                             <tbody id="cartTableBody">
-                                <tr className="cart-item" data-price="350000">
+                                {cartItems.length > 0 ? (
+                                    cartItems.map((item) => (
+                                        <tr key={item.id} className="cart-item" data-price={item.price}>
+                                            <td className="item-info">
+                                                <img src={typeof item.image === 'string' ? item.image : item.image[0]} alt={item.name} className="item-image" />
+                                                <div className="item-details">
+                                                    <h3>{item.name}</h3>
+                                                    <p>Số lượng:</p>
+                                                </div>
+                                            </td>
+                                            <td className="item-price">{new Intl.NumberFormat('vi-VN').format(item.price)} VND</td>
+                                            <td>
+                                                <div className="cart-qty">
+                                                    <button className="qty-btn-sm" onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>-</button>
+                                                    <input type="number" className="qty-input-sm" value={item.quantity} min="1" readOnly />
+                                                    <button className="qty-btn-sm" onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>+</button>
+                                                </div>
+                                            </td>
+                                            <td className="item-total" style={{fontWeight: 'bold', color: '#1f2937'}}>{new Intl.NumberFormat('vi-VN').format(item.totalPrice)} VND</td>
+                                            <td>
+                                                <button className="remove-btn" onClick={() => RemoveItem(item.id)}>
+                                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path 
+                                                        strokeLinecap="round" 
+                                                        strokeLinejoin="round" 
+                                                        strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={5} style={{textAlign: 'center', padding: '2rem', color: '#6b7280'}}>
+                                            Giỏ hàng trống. <Link href="/products" style={{color: '#d97706', textDecoration: 'underline'}}>Tiếp tục mua sắm</Link>
+                                        </td>
+                                    </tr>
+                                )}
+                                {/* Dummy rows - commented out since we're using dynamic data */}
+                                {cartItems.length > 0 ? null : (
+                                    <>
+                                <tr className="cart-item" data-price="350000" style={{display: 'none'}}>
                                     <td className="item-info">
                                         <img src="images/lavender.jpg" alt="Lavender Bliss" className="item-image" />
                                         <div className="item-details">
@@ -73,7 +120,7 @@ export default function Cart() {
                                         </button>
                                     </td>
                                 </tr>
-                                <tr className="cart-item" data-price="280000">
+                                <tr className="cart-item" data-price="280000" style={{display: 'none'}}>
                                     <td className="item-info">
                                         <img src="images/vanilla.jpg" alt="Vanilla Dream" className="item-image" />
                                         <div className="item-details">
@@ -102,6 +149,8 @@ export default function Cart() {
                                         </button>
                                     </td>
                                 </tr>
+                                    </>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -112,7 +161,7 @@ export default function Cart() {
                     <h2 className="summary-title">Tóm tắt đơn hàng</h2>
                     <div className="summary-row">
                         <span>Tạm tính</span>
-                        <span id="subtotal">630.000đ</span>
+                        <span id="subtotal">{new Intl.NumberFormat('vi-VN').format(totalAmount)} VND</span>
                     </div>
                     <div className="summary-row">
                         <span>Phí vận chuyển</span>
@@ -133,7 +182,7 @@ export default function Cart() {
 
                     <div className="summary-row total">
                         <span>Tổng cộng</span>
-                        <span className="price" id="totalAmount">630.000đ</span>
+                        <span className="price" id="totalAmount">{new Intl.NumberFormat('vi-VN').format(totalAmount)} VND</span>
                     </div>
 
                     <Link href="/checkout" className="btn btn-gradient btn-full checkout-btn" >

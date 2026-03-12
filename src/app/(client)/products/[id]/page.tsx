@@ -1,6 +1,6 @@
 'use client';
 
-import useCartControllers from "@/app/cart/useCartControllers";
+import useCartControllers from "@/app/(client)/cart/useCartControllers";
 import "@/style/product-detail.css";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";

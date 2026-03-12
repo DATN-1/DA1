@@ -2,9 +2,9 @@
 
 import "@/style/products.css";
 import Link from "next/link";
-import useCartControllers from "../cart/useCartControllers";
+import useCartControllers from "@/app/(client)/cart/useCartControllers";
 import { useEffect, useState } from "react";
-import { ProductType } from "./productType";
+import { ProductType } from "@/app/type/productType";
 import useProducts from "./useProducts";
 
 export default function Product() {
@@ -236,7 +236,7 @@ export default function Product() {
                         <div className="product-footer">
                           <span className="product-price">
                             {new Intl.NumberFormat("vi-VN").format(
-                              (product.price || 0) * 25000,
+                              product.price || 0,
                             )}{" "}
                             VND
                           </span>
@@ -301,14 +301,7 @@ export default function Product() {
             </main>
           </div>
         </div>
-<<<<<<< HEAD
       </section>
     </main>
   );
-=======
-    </div>
-</section>
-        </main>
-    )
->>>>>>> 82e514a128e86524af16a50ac92a0e8fa0ea0759
 }

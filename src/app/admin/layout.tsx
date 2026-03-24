@@ -1,4 +1,3 @@
-
 import Sidebar from "@/app/admin/components/Sidebar";
 import Topbar from "@/app/admin/components/TopBar";
 import "@/style/admin.css";
@@ -11,8 +10,7 @@ export default function AdminLayout({
   return (
     <div className="flex">
       <Sidebar />
-
-      <div className="flex-1">
+      <div className="main-content flex-1">
         <Topbar />
         {children}
       </div>

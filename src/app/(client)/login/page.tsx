@@ -1,6 +1,6 @@
 'use client';
 import Link from "next/link";
-import "../../style/auth.css";
+import "@/style/auth.css";
 
 
 export default function LoginPage() {

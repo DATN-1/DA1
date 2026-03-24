@@ -1,5 +1,12 @@
-import { updateOrderStatus } from '@/app/controllers/order.Controllers';
+import { updateOrderStatus, getAllOrdersController, createOrderController } from '@/app/controllers/order.Controllers';
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
-  return updateOrderStatus(req, Number(params.id));
+export async function POST(req: Request) {
+  return createOrderController(req);
+}
+export async function PATCH(req: Request) {
+  return updateOrderStatus(req);
+}
+
+export async function GET() {
+  return getAllOrdersController();
 }

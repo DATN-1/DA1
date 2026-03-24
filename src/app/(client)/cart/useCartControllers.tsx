@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 
 type CartItem = {
@@ -16,13 +16,11 @@ type CartItem = {
 
 export default function useCartControllers() {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
-    const [totalAmount, setTotalAmount] = useState(0);
     const [isClient, setIsClient] = useState(false);
     
-    const calculateTotal = () => {
-        const total = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
-        setTotalAmount(total);
-    };
+    const totalAmount = useMemo(() => {
+        return cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+    }, [cartItems]);
 
     const dispatchCartUpdate = (newItems: CartItem[]) => {
         if (typeof window !== 'undefined') {
@@ -33,12 +31,11 @@ export default function useCartControllers() {
 
 
     const addToCart = (item: Omit<CartItem, 'quantity' | 'totalPrice'>, quantity: number = 1) => {
-    setCartItems(prevItems => {
-      const existing = prevItems.find(p => p.id === item.id);
+      const existing = cartItems.find(p => p.id === item.id);
       let newItems;
 
       if (existing) {
-        newItems = prevItems.map(p =>
+        newItems = cartItems.map(p =>
           p.id === item.id
             ? {
                 ...p,
@@ -49,7 +46,7 @@ export default function useCartControllers() {
         );
       } else {
         newItems = [
-          ...prevItems,
+          ...cartItems,
           {
             ...item,
             quantity: quantity,
@@ -58,19 +55,14 @@ export default function useCartControllers() {
         ];
       }
       
-      // Dispatch custom event to notify other components
+      setCartItems(newItems);
       dispatchCartUpdate(newItems);
-      
-      return newItems;
-    });
   };
     
     const RemoveItem = (id: string) => {
-        setCartItems(prevItems => {
-            const newItems = prevItems.filter(item => item.id !== id);
-            dispatchCartUpdate(newItems);
-            return newItems;
-        });
+        const newItems = cartItems.filter(item => item.id !== id);
+        setCartItems(newItems);
+        dispatchCartUpdate(newItems);
     };
     
     const UpdateQty = (id: string, newQuantity: number) => {
@@ -79,20 +71,17 @@ export default function useCartControllers() {
             return;
         }
         
-        setCartItems(prevItems => {
-            const newItems = prevItems.map(item => 
-                item.id === id 
-                    ? { ...item, quantity: newQuantity, totalPrice: item.price * newQuantity }
-                    : item
-            );
-            dispatchCartUpdate(newItems);
-            return newItems;
-        });
+        const newItems = cartItems.map(item => 
+            item.id === id 
+                ? { ...item, quantity: newQuantity, totalPrice: item.price * newQuantity }
+                : item
+        );
+        setCartItems(newItems);
+        dispatchCartUpdate(newItems);
     };
     
     const handleClearCart = () => {
         setCartItems([]);
-        setTotalAmount(0);
         if (typeof window !== 'undefined') {
             localStorage.removeItem('cartItems');
             window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cartItems: [] } }));
@@ -106,11 +95,23 @@ export default function useCartControllers() {
             const savedCart = localStorage.getItem('cartItems');
             if (savedCart) {
                 try {
-                    setCartItems(JSON.parse(savedCart));
+                    const parsedCart = JSON.parse(savedCart);
+                    setCartItems(parsedCart);
                 } catch (error) {
                     console.error('Error loading cart from localStorage:', error);
                 }
             }
+
+            // Sync this instance when other instances dispatch the custom event
+            const handleCartUpdateEvent = (e: any) => {
+                if (e.detail?.cartItems) {
+                    setCartItems(e.detail.cartItems);
+                }
+            };
+            window.addEventListener('cartUpdated', handleCartUpdateEvent);
+            return () => {
+                window.removeEventListener('cartUpdated', handleCartUpdateEvent);
+            };
         }
     }, []);
     
@@ -119,7 +120,6 @@ export default function useCartControllers() {
         if (isClient && typeof window !== 'undefined') {
             localStorage.setItem('cartItems', JSON.stringify(cartItems));
         }
-        calculateTotal();
     }, [cartItems, isClient]);
 
     return {

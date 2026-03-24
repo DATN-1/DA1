@@ -1,6 +1,6 @@
 'use client';
 
-import "../../style/auth.css";
+import "@/style/auth.css";
 import Link from "next/link";
 
 

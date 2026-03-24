@@ -268,10 +268,10 @@ export default function Product() {
                             className="btn btn-amber"
                             onClick={() =>
                               cartAddToCart({
-                                id: "1",
-                                name: "Lavender Bliss",
-                                price: 350000,
-                                image: ["/images/lavender.jpg"],
+                                id: String(product.id),
+                                name: product.name,
+                                price: product.price,
+                                image: [productImage],
                               })
                             }>
                             Thêm Vào Giỏ

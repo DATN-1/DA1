@@ -1,6 +1,6 @@
 'use client';
 import Link from "next/link";
-import useCartControllers from "@/app/cart/useCartControllers";
+import useCartControllers from "@/app/(client)/cart/useCartControllers";
 import { useEffect, useState } from "react";
 
 export default function Header(){

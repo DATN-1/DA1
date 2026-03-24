@@ -15,6 +15,7 @@ export default function ProductDetail() {
     const [product, setProduct] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [quantity, setQuantity] = useState<number>(1);
     
     useEffect(() => {
         if (!id) return;
@@ -174,16 +175,23 @@ const mainImage = imageList[0] || "../images/default-product.png";
                     <div className="quantity-section">
                         <label className="quantity-label">Số lượng:</label>
                         <div className="quantity-controls">
-                            <button className="qty-btn" onClick={() => {}}>-</button>
-                            <input type="number" id="quantity" value="1" min="1" max="45" readOnly />
-                            <button className="qty-btn" onClick={() => {}}>+</button>
+                            <button className="qty-btn" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+                            <input type="number" id="quantity" value={quantity} min="1" max="45" readOnly />
+                            <button className="qty-btn" onClick={() => setQuantity(Math.min(45, quantity + 1))}>+</button>
                         </div>
                         <span className="max-qty-text">Tối đa: <span id="max-qty">45</span> sản phẩm</span>
                     </div>
 
                     {/* <!-- Action Buttons --> */}
                     <div className="product-actions-detail">
-                        <button className="btn btn-gradient btn-large" onClick={() => {}}>
+                        <button className="btn btn-gradient btn-large" onClick={() => {
+                            cartAddToCart({
+                                id: String(product.id),
+                                name: product.name,
+                                price: product.price,
+                                image: imageList,
+                            }, quantity);
+                        }}>
                             <svg width="20" height="20" fill="none" stroke="white" viewBox="0 0 24 24" style={{ marginRight: "0.5rem" }}>
                                 <path 
                                 strokeLinecap="round" 
@@ -193,7 +201,15 @@ const mainImage = imageList[0] || "../images/default-product.png";
                             </svg>
                             Thêm Vào Giỏ Hàng
                         </button>
-                        <button className="btn btn-dark btn-large" onClick={() => {}}>Mua Ngay</button>
+                        <button className="btn btn-dark btn-large" onClick={() => {
+                            cartAddToCart({
+                                id: String(product.id),
+                                name: product.name,
+                                price: product.price,
+                                image: imageList,
+                            }, quantity);
+                            window.location.href = '/cart';
+                        }}>Mua Ngay</button>
                     </div>
 
                     {/* <!-- Features --> */}

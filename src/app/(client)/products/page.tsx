@@ -5,6 +5,7 @@ import Link from "next/link";
 import useCartControllers from "@/app/(client)/cart/useCartControllers";
 import { Suspense } from "react";
 import useProducts from "./useProducts";
+import Breadcrumb from "@/app/(client)/components/Breadcrumb";
 
 function ProductsContent() {
   const { addToCart: cartAddToCart } = useCartControllers();
@@ -44,6 +45,12 @@ function ProductsContent() {
 
   return (
     <main>
+      <div className="container">
+        <Breadcrumb items={[
+          { label: "Trang Chủ", href: "/" },
+          { label: "Sản Phẩm" }
+        ]} />
+      </div>
       <section
         className="gradient-bg"
         style={{ minHeight: "100vh", padding: "4rem 0" }}>

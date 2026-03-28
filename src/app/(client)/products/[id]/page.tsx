@@ -3,6 +3,7 @@
 import useCartControllers from "@/app/(client)/cart/useCartControllers";
 import "@/style/product-detail.css";
 import Link from "next/link";
+import Breadcrumb from "@/app/(client)/components/Breadcrumb";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
@@ -302,16 +303,12 @@ export default function ProductDetail() {
 
     return (
         <div>
-            <div className="breadcrumb breadcrumb-detail">
-                <div className="container breadcrumb-container-left">
-                    <nav className="breadcrumb-nav" aria-label="Breadcrumb">
-                        <Link href="/" className="breadcrumb-link">Trang Chủ</Link>
-                        <span className="breadcrumb-separator">/</span>
-                        <Link href="/products" className="breadcrumb-link">Sản Phẩm</Link>
-                        <span className="breadcrumb-separator">/</span>
-                        <span id="product-name-breadcrumb" className="breadcrumb-current">{product.name || 'Chi Tiết'}</span>
-                    </nav>
-                </div>
+            <div className="container">
+                <Breadcrumb items={[
+                    { label: "Trang Chủ", href: "/" },
+                    { label: "Sản Phẩm", href: "/products" },
+                    { label: product.name || "Chi Tiết" }
+                ]} />
             </div>
 
             <section className="product-detail-section-shell">

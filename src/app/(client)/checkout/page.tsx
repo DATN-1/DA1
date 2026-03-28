@@ -27,9 +27,9 @@ export default function CheckoutPage() {
     useEffect(() => {
         setMounted(true);
         // Lấy danh sách Tỉnh/Thành Phố khi vừa mở trang
-        fetch('https://provinces.open-api.vn/api/p/')
+        fetch('/api/provinces')
             .then(res => res.json())
-            .then(data => setProvinces(data))
+            .then(data => setProvinces(Array.isArray(data) ? data : []))
             .catch(err => console.error("Error fetching provinces:", err));
     }, []);
 
@@ -40,7 +40,7 @@ export default function CheckoutPage() {
             setSelectedDistrict("");
             return;
         }
-        fetch(`https://provinces.open-api.vn/api/p/${selectedProvince}?depth=2`)
+        fetch(`/api/provinces/${selectedProvince}`)
             .then(res => res.json())
             .then(data => {
                 setDistricts(data.districts || []);

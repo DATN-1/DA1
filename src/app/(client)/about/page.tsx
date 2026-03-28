@@ -1,8 +1,15 @@
 import '../../../style/about.css';
+import Breadcrumb from "@/app/(client)/components/Breadcrumb";
 
 export default function AboutPage() {
     return (
         <div>
+            <div className="container">
+                <Breadcrumb items={[
+                    { label: "Trang Chủ", href: "/" },
+                    { label: "Về Chúng Tôi" }
+                ]} />
+            </div>
             <section className="about-hero">
         <div className="container about-hero-content">
             <h1>Về Chúng Tôi</h1>

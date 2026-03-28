@@ -1,8 +1,15 @@
 import "@/style/contact.css";
+import Breadcrumb from "@/app/(client)/components/Breadcrumb";
 
 export default function ContactPage() {
     return (
         <div>
+            <div className="container">
+                <Breadcrumb items={[
+                    { label: "Trang Chủ", href: "/" },
+                    { label: "Liên Hệ" }
+                ]} />
+            </div>
              <section className="contact-hero">
         <div className="container">
             <h1>Liên Hệ Với Chúng Tôi</h1>

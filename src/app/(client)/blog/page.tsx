@@ -1,8 +1,15 @@
 import '@/style/index.css';
+import Breadcrumb from "@/app/(client)/components/Breadcrumb";
 
 export default function BlogPage() {
   return (
     <div>
+      <div className="container">
+        <Breadcrumb items={[
+          { label: "Trang Chủ", href: "/" },
+          { label: "Góc Chia Sẻ" }
+        ]} />
+      </div>
       <section className="gradient-bg" style={{ padding: "5rem 0", textAlign: "center" }}>
         <div className="container">
           <h1 style={{ fontSize: "3.5rem", fontWeight: "bold", marginBottom: "1.5rem" }} className="text-gradient">

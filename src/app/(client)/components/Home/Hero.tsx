@@ -1,3 +1,5 @@
+"use client";
+
 import HeroCarousel from "@/app/controllers/carousel/HeroCarousel";
 import Link from "next/link";
 

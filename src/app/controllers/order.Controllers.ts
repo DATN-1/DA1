@@ -18,6 +18,11 @@ export async function updateOrderStatus(req: Request) {
 }
 
 export async function getAllOrdersController() {
-  const orders = await getAllOrdersService();
-  return Response.json(orders);
+  try {
+    const orders = await getAllOrdersService();
+    return Response.json(orders);
+  } catch (error: any) {
+    console.error('[getAllOrdersController] Error:', error?.message, error?.stack);
+    return Response.json({ success: false, error: error?.message ?? 'Unknown error' }, { status: 500 });
+  }
 }

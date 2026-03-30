@@ -10,6 +10,12 @@ type CartItem = {
     image: string[];
     quantity: number;
     totalPrice: number;
+    variant?: {
+        id: number;
+        size: string;
+        price: number;
+        sku: string;
+    };
 }
 
 

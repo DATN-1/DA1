@@ -1,8 +1,15 @@
-import '../../style/about.css';
+import '../../../style/about.css';
+import Breadcrumb from "@/app/(client)/components/Breadcrumb";
 
 export default function AboutPage() {
     return (
         <div>
+            <div className="container">
+                <Breadcrumb items={[
+                    { label: "Trang Chủ", href: "/" },
+                    { label: "Về Chúng Tôi" }
+                ]} />
+            </div>
             <section className="about-hero">
         <div className="container about-hero-content">
             <h1>Về Chúng Tôi</h1>
@@ -18,7 +25,7 @@ export default function AboutPage() {
                     <h2>Câu Chuyện Của Chúng Tôi</h2>
                     <div className="story-text">
                         <p>
-                            <strong style={{color: "#d97706;"}}>Aromi Candle</strong> được thành lập vào năm 2020 với niềm đam mê tạo ra những sản phẩm nến thơm chất lượng cao, 
+                            <strong style={{color: "#d97706"}}>Aromi Candle</strong> được thành lập vào năm 2020 với niềm đam mê tạo ra những sản phẩm nến thơm chất lượng cao, 
                             mang đến không gian sống ấm cúng và thư giãn cho mọi gia đình Việt Nam.
                         </p>
                         <p>

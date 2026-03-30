@@ -3,28 +3,54 @@
 import "@/style/products.css";
 import Link from "next/link";
 import useCartControllers from "@/app/(client)/cart/useCartControllers";
-import { useEffect, useState } from "react";
-import { ProductType } from "@/app/type/productType";
+import { Suspense } from "react";
 import useProducts from "./useProducts";
+import Breadcrumb from "@/app/(client)/components/Breadcrumb";
 
-export default function Product() {
+function ProductsContent() {
   const { addToCart: cartAddToCart } = useCartControllers();
-  const { products, sort, setSort, page, setpage, total, totalPages } = useProducts();
+  const {
+    products,
+    categories,
+    sort,
+    setSort,
+    page,
+    setpage,
+    total,
+    totalPages,
+    search,
+    setSearch,
+    selectedCategoryIds,
+    selectedPriceRanges,
+    selectedRatings,
+    toggleCategory,
+    togglePriceRange,
+    toggleRating,
+    clearFilters,
+  } = useProducts();
 
-  const handleNextPage = () => {
-    if (page < totalPages) {
-        setpage(page + 1);
-    }
-    };
-    const handlePrevPage = () => {
-    if (page > 1) {
+  const hasActiveFilters =
+    selectedCategoryIds.length > 0 ||
+    selectedPriceRanges.length > 0 ||
+    selectedRatings.length > 0;
 
-        setpage(page - 1);
-    }
-    };
+  const renderStars = (averageRating: number = 0) => {
+    const roundedRating = Math.round(averageRating);
+    return Array.from({ length: 5 }, (_, index) => (
+      <svg key={index} className={`star ${index < roundedRating ? "active" : "inactive"}`} viewBox="0 0 20 20">
+        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+      </svg>
+    ));
+  };
 
   return (
     <main>
+      <div className="container">
+        <Breadcrumb items={[
+          { label: "Trang Chủ", href: "/" },
+          { label: "Sản Phẩm" }
+        ]} />
+      </div>
       <section
         className="gradient-bg"
         style={{ minHeight: "100vh", padding: "4rem 0" }}>
@@ -73,6 +99,8 @@ export default function Product() {
               className="search-input"
               id="productSearch"
               placeholder="Tìm kiếm sản phẩm theo tên..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
@@ -98,22 +126,17 @@ export default function Product() {
                   Danh Mục
                 </h3>
                 <ul className="filter-list">
-                  <li className="filter-item">
-                    <input type="checkbox" id="cat-floral" defaultChecked />
-                    <label htmlFor="cat-floral">Hương Hoa</label>
-                  </li>
-                  <li className="filter-item">
-                    <input type="checkbox" id="cat-fresh" defaultChecked />
-                    <label htmlFor="cat-fresh">Hương Tươi Mát</label>
-                  </li>
-                  <li className="filter-item">
-                    <input type="checkbox" id="cat-sweet" defaultChecked />
-                    <label htmlFor="cat-sweet">Hương Ngọt Ngào</label>
-                  </li>
-                  <li className="filter-item">
-                    <input type="checkbox" id="cat-woody" defaultChecked />
-                    <label htmlFor="cat-woody">Hương Gỗ</label>
-                  </li>
+                  {categories.map((category) => (
+                    <li key={category.id} className="filter-item">
+                      <input
+                        type="checkbox"
+                        id={`cat-${category.id}`}
+                        checked={selectedCategoryIds.includes(category.id)}
+                        onChange={() => toggleCategory(category.id)}
+                      />
+                      <label htmlFor={`cat-${category.id}`}>{category.name}</label>
+                    </li>
+                  ))}
                 </ul>
               </div>
 
@@ -137,15 +160,30 @@ export default function Product() {
                 </h3>
                 <ul className="filter-list">
                   <li className="filter-item">
-                    <input type="checkbox" id="price-1" defaultChecked />
+                    <input
+                      type="checkbox"
+                      id="price-1"
+                      checked={selectedPriceRanges.includes("under-300")}
+                      onChange={() => togglePriceRange("under-300")}
+                    />
                     <label htmlFor="price-1">Dưới 300.000đ</label>
                   </li>
                   <li className="filter-item">
-                    <input type="checkbox" id="price-2" defaultChecked />
+                    <input
+                      type="checkbox"
+                      id="price-2"
+                      checked={selectedPriceRanges.includes("300-500")}
+                      onChange={() => togglePriceRange("300-500")}
+                    />
                     <label htmlFor="price-2">300.000đ - 500.000đ</label>
                   </li>
                   <li className="filter-item">
-                    <input type="checkbox" id="price-3" defaultChecked />
+                    <input
+                      type="checkbox"
+                      id="price-3"
+                      checked={selectedPriceRanges.includes("over-500")}
+                      onChange={() => togglePriceRange("over-500")}
+                    />
                     <label htmlFor="price-3">Trên 500.000đ</label>
                   </li>
                 </ul>
@@ -171,15 +209,31 @@ export default function Product() {
                 </h3>
                 <ul className="filter-list">
                   <li className="filter-item">
-                    <input type="checkbox" id="rate-5" defaultChecked />
+                    <input
+                      type="checkbox"
+                      id="rate-5"
+                      checked={selectedRatings.includes(5)}
+                      onChange={() => toggleRating(5)}
+                    />
                     <label htmlFor="rate-5">5 Sao ✨</label>
                   </li>
                   <li className="filter-item">
-                    <input type="checkbox" id="rate-4" defaultChecked />
+                    <input
+                      type="checkbox"
+                      id="rate-4"
+                      checked={selectedRatings.includes(4)}
+                      onChange={() => toggleRating(4)}
+                    />
                     <label htmlFor="rate-4">4 Sao trở lên</label>
                   </li>
                 </ul>
               </div>
+
+              {hasActiveFilters && (
+                <button type="button" className="clear-filters-btn" onClick={clearFilters}>
+                  Xóa bộ lọc
+                </button>
+              )}
             </aside>
 
             {/* Main Content */}
@@ -188,7 +242,7 @@ export default function Product() {
               <div className="products-toolbar">
                 <div className="results-count">
                   Hiển thị <span id="displayedCount">{products.length}</span>{" "}
-                  trong 9 sản phẩm
+                  trong {total} sản phẩm
                 </div>
                 <select
                   className="sort-select"
@@ -203,7 +257,16 @@ export default function Product() {
 
               {/* <!-- Products Grid --> */}
               <div className="products-grid" id="productsGrid">
-                {/* <!-- Product 1 --> */}
+                {products.length === 0 && (
+                  <div className="product-card" style={{ gridColumn: "1 / -1", textAlign: "center" }}>
+                    <div className="product-info">
+                      <h3 className="product-name">Không tìm thấy sản phẩm</h3>
+                      <p className="product-description">
+                        Thử tìm với từ khóa khác để xem các sản phẩm phù hợp.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 {products.map((product) => {
                   const productImage =
                     typeof product.image === "string"
@@ -241,21 +304,10 @@ export default function Product() {
                             VND
                           </span>
                           <div className="rating">
-                            <svg className="star" viewBox="0 0 20 20">
-                              <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                            </svg>
-                            <svg className="star" viewBox="0 0 20 20">
-                              <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                            </svg>
-                            <svg className="star" viewBox="0 0 20 20">
-                              <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                            </svg>
-                            <svg className="star" viewBox="0 0 20 20">
-                              <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                            </svg>
-                            <svg className="star" viewBox="0 0 20 20">
-                              <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                            </svg>
+                            {renderStars(Number(product.average_rating) || 0)}
+                            <span className="rating-text-small">
+                              {(Number(product.average_rating) || 0).toFixed(1)}
+                            </span>
                           </div>
                         </div>
                         <div className="product-actions">
@@ -293,7 +345,7 @@ export default function Product() {
                   <span>Trang {page}</span>
 
                   <button
-                    disabled={page * 9 >= total}
+                    disabled={page >= totalPages || totalPages === 0}
                     onClick={() => setpage(page + 1)}>
                     Next
                   </button>
@@ -303,5 +355,13 @@ export default function Product() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function Product() {
+  return (
+    <Suspense fallback={<main className="gradient-bg" style={{ minHeight: "100vh", padding: "4rem 0" }}><div className="container"><p>Đang tải sản phẩm...</p></div></main>}>
+      <ProductsContent />
+    </Suspense>
   );
 }

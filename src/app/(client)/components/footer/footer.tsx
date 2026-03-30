@@ -45,21 +45,21 @@ export default function Footer(){
           <div className="footer-section">
             <h4>Liên Kết Nhanh</h4>
             <ul>
-              <li><a href="index.html">Trang Chủ</a></li>
-              <li><a href="products.html">Sản Phẩm</a></li>
-              <li><a href="blog.html">Bài Viết</a></li>
-              <li><a href="about.html">Về Chúng Tôi</a></li>
-              <li><a href="contact.html">Liên Hệ</a></li>
+              <li><Link href="/">Trang Chủ</Link></li>
+              <li><Link href="/products">Sản Phẩm</Link></li>
+              <li><Link href="/blog">Bài Viết</Link></li>
+              <li><Link href="/about">Về Chúng Tôi</Link></li>
+              <li><Link href="/contact">Liên Hệ</Link></li>
             </ul>
           </div>
 
           <div className="footer-section">
             <h4>Hỗ Trợ Khách Hàng</h4>
             <ul>
-              <li><a href="#">Chính Sách Đổi Trả</a></li>
-              <li><a href="#">Hướng Dẫn Mua Hàng</a></li>
-              <li><a href="#">Câu Hỏi Thường Gặp</a></li>
-              <li><a href="#">Chính Sách Bảo Mật</a></li>
+              <li><Link href="/contact">Chính Sách Đổi Trả</Link></li>
+              <li><Link href="/products">Hướng Dẫn Mua Hàng</Link></li>
+              <li><Link href="/about">Câu Hỏi Thường Gặp</Link></li>
+              <li><Link href="/contact">Chính Sách Bảo Mật</Link></li>
             </ul>
           </div>
 

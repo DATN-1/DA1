@@ -49,7 +49,7 @@ export default function FeaturedProductSection(){
                 <h3 className="product-name">{product.name}</h3>
                 <p className="product-description">{product.description}</p>
                 <div className="product-footer">
-                  <span className="product-price">{new Intl.NumberFormat('vi-VN').format((product.price || 0) * 25000)} VND</span>
+                  <span className="product-price">{new Intl.NumberFormat('vi-VN').format((product.price || 0))} VND</span>
                   <div className="rating">
                     <svg className="star" viewBox="0 0 20 20">
                       <path
@@ -81,11 +81,11 @@ export default function FeaturedProductSection(){
             </ProductCarousel>
 
             <div style={{textAlign: "center", marginTop: "3rem"}}>
-                <a
-                    href="products.html"
+              <Link
+                href="/products"
                     className="btn btn-dark"
                     style={{padding: "1rem 3rem"}}
-                    >Xem Tất Cả Sản Phẩm</a>
+                >Xem Tất Cả Sản Phẩm</Link>
             </div>
             </div>
         </section>

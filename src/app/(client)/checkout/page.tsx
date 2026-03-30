@@ -27,9 +27,9 @@ export default function CheckoutPage() {
     useEffect(() => {
         setMounted(true);
         // Lấy danh sách Tỉnh/Thành Phố khi vừa mở trang
-        fetch('https://provinces.open-api.vn/api/p/')
+        fetch('/api/provinces')
             .then(res => res.json())
-            .then(data => setProvinces(data))
+            .then(data => setProvinces(Array.isArray(data) ? data : []))
             .catch(err => console.error("Error fetching provinces:", err));
     }, []);
 
@@ -40,7 +40,7 @@ export default function CheckoutPage() {
             setSelectedDistrict("");
             return;
         }
-        fetch(`https://provinces.open-api.vn/api/p/${selectedProvince}?depth=2`)
+        fetch(`/api/provinces/${selectedProvince}`)
             .then(res => res.json())
             .then(data => {
                 setDistricts(data.districts || []);
@@ -56,18 +56,22 @@ export default function CheckoutPage() {
         }
 
         const formData = new FormData(e.currentTarget);
+        const customerName = formData.get('name')?.toString().trim() || '';
+        const customerPhone = formData.get('phone')?.toString().trim() || '';
         const pName = provinces.find(p => p.code == selectedProvince)?.name || "";
         const dName = districts.find(d => d.code == selectedDistrict)?.name || "";
         const fullAddress = `${formData.get('address')}, ${dName}, ${pName}`;
 
         const payload = {
-            recipient_name: formData.get('name'),
-            recipient_phone: formData.get('phone'),
+          recipient_name: customerName,
+          recipient_phone: customerPhone,
             shipping_address: fullAddress,
             total_amount: totalAmount,
             payment_method: paymentMethod,
             items: cartItems.map((item: any) => ({
                 id: item.id,
+              name: item.name,
+              variant: item.variant,
                 quantity: item.quantity,
                 price: item.price
             }))

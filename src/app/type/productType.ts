@@ -17,9 +17,25 @@ export type ProductType = {
     stock: number
     status: 'active' | 'draft' | 'archived'
     is_featured: number
+    average_rating?: number
+    review_count?: number
 
     created_at: string
     updated_at: string
+}
+
+export type ProductCategoryType = {
+    id: number
+    name: string
+}
+
+export type ProductVariant = {
+    id: number
+    product_id: number
+    size: string
+    price: number
+    stock: number
+    sku: string
 }
 
 export type Props = {

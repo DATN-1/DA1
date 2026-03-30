@@ -1,19 +1,82 @@
 'use client';
 import Link from "next/link";
 import useCartControllers from "@/app/(client)/cart/useCartControllers";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+type AuthUser = {
+  id: number;
+  email: string;
+  full_name: string | null;
+  role: "admin" | "customer";
+};
 
 export default function Header(){
     const { cartItems } = useCartControllers();
     const [cartCount, setCartCount] = useState(0);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [authNotice, setAuthNotice] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const router = useRouter();
+
+    const loadCurrentUser = () => {
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      const savedUser = window.localStorage.getItem("currentUser");
+
+      if (!savedUser) {
+        setCurrentUser(null);
+        return;
+      }
+
+      try {
+        setCurrentUser(JSON.parse(savedUser));
+      } catch {
+        window.localStorage.removeItem("currentUser");
+        setCurrentUser(null);
+      }
+    };
+
+    const userDisplayName = currentUser?.full_name?.trim() || currentUser?.email || "Tài khoản";
+    const userInitials = userDisplayName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join("") || "U";
+
+    const accountHref = currentUser?.role === "admin" ? "/admin" : "/";
     
     const updateCartCount = (items: any[] = cartItems) => {
         setCartCount(items.reduce((sum, item) => sum + item.quantity, 0));
     };
+
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const search = keyword.trim();
+    router.push(search ? `/products?search=${encodeURIComponent(search)}` : "/products");
+  };
     
     useEffect(() => {
         updateCartCount();
     }, [cartItems]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const searchParam = new URLSearchParams(window.location.search).get("search") || "";
+      setKeyword(searchParam);
+      loadCurrentUser();
+
+      const authMessage = window.sessionStorage.getItem("authMessage");
+      if (authMessage) {
+        setAuthNotice(authMessage);
+        window.sessionStorage.removeItem("authMessage");
+        window.setTimeout(() => setAuthNotice(""), 2600);
+      }
+    }
+  }, []);
     
     useEffect(() => {
         // Listen for custom cart update events from other components
@@ -22,14 +85,23 @@ export default function Header(){
                 updateCartCount(event.detail.cartItems);
             }
         };
+
+        const handleAuthChanged = () => {
+          loadCurrentUser();
+        };
         
         if (typeof window !== 'undefined') {
             window.addEventListener('cartUpdated', handleCartUpdate);
-            return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+            window.addEventListener('authChanged', handleAuthChanged);
+            return () => {
+              window.removeEventListener('cartUpdated', handleCartUpdate);
+              window.removeEventListener('authChanged', handleAuthChanged);
+            };
         }
     }, []);
     return(
         <header>
+      {authNotice && <div className="auth-notice">{authNotice}</div>}
       <div className="container">
         <div className="header-content">
           <Link href="/" className="logo">
@@ -67,34 +139,49 @@ export default function Header(){
           </nav>
 
           <div className="header-actions">
-            <button className="icon-btn">
-              <svg
-                width="24"
-                height="24"
-                fill="none"
-                stroke="#374151"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-            <Link href="/login" className="icon-btn">
-              <svg
-                width="24"
-                height="24"
-                fill="none"
-                stroke="#374151"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </Link>
+            <form className="header-search" onSubmit={handleSearch}>
+              <input
+                type="text"
+                value={keyword}
+                onChange={(event) => setKeyword(event.target.value)}
+                placeholder="Tìm sản phẩm..."
+                aria-label="Tìm kiếm sản phẩm"
+              />
+              <button type="submit" className="icon-btn header-search-btn" aria-label="Tìm kiếm">
+                <svg
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="#374151"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </form>
+            {currentUser ? (
+              <Link href={accountHref} className="icon-btn user-account-btn" title={userDisplayName} aria-label={userDisplayName}>
+                <span className="user-avatar">{userInitials}</span>
+              </Link>
+            ) : (
+              <Link href="/login" className="icon-btn" aria-label="Đăng nhập tài khoản">
+                <svg
+                  width="24"
+                  height="24"
+                  fill="none"
+                  stroke="#374151"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </Link>
+            )}
             <Link href="/cart" className="icon-btn">
               <svg
                 width="24"

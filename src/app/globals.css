@@ -125,6 +125,34 @@ nav a:hover::after {
   gap: 1rem;
 }
 
+.header-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 240px;
+  padding: 0.35rem 0.4rem 0.35rem 0.9rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+}
+
+.header-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.header-search input::placeholder {
+  color: #9ca3af;
+}
+
+.header-search-btn {
+  flex-shrink: 0;
+}
+
 .icon-btn {
   padding: 0.5rem;
   background: transparent;
@@ -137,6 +165,38 @@ nav a:hover::after {
 
 .icon-btn:hover {
   background: #f3f4f6;
+}
+
+.user-account-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 10px 18px rgba(245, 158, 11, 0.22);
+}
+
+.auth-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  box-shadow: 0 10px 18px rgba(16, 185, 129, 0.22);
 }
 
 .cart-badge {
@@ -372,7 +432,22 @@ footer {
 
 /* Responsive (Base) */
 @media (max-width: 768px) {
+  .header-content {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
   nav {
     display: none;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .header-search {
+    min-width: 0;
+    flex: 1;
   }
 }

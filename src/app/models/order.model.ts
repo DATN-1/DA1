@@ -64,17 +64,22 @@ export async function createOrderItems(orderId: number, items: any[]): Promise<v
 }
 
 export async function getOrderItems(orderId: number): Promise<any[]> {
-  const [rows] = await pool.query(
-    `SELECT 
-      oi.*,
-      COALESCE(oi.product_name_snapshot, p.name) as product_name,
-      p.image_url as product_image 
-     FROM order_items oi 
-     LEFT JOIN products p ON oi.product_id = p.id 
-     WHERE oi.order_id = ?`,
-    [orderId]
-  );
-  return rows as any[];
+  try {
+    const [rows] = await pool.query(
+      `SELECT 
+        oi.*,
+        COALESCE(oi.product_name_snapshot, p.name) as product_name,
+        p.image as product_image 
+       FROM order_items oi 
+       LEFT JOIN products p ON oi.product_id = p.id 
+       WHERE oi.order_id = ?`,
+      [orderId]
+    );
+    return rows as any[];
+  } catch (error: any) {
+    console.error(`[getOrderItems] Failed for orderId=${orderId}:`, error?.message);
+    return [];
+  }
 }
 
 export async function getOrderById(orderId: number): Promise<Order | null> {

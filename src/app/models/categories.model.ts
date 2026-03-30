@@ -1,43 +1,37 @@
-// import pool from "../lib/db";
+import pool from '@/app/lib/db';
+import { Category } from '@/app/type/categoryType';
+import { ResultSetHeader } from 'mysql2';
 
-// export default async function getAllCategories() {
-//     const [rows] = await pool.query('SELECT * FROM categories');
-//     return rows;
-// }
+export async function getAllCategories(): Promise<Category[]> {
+  const [rows] = await pool.query<Category[]>(
+    `SELECT id, name, slug, description, image FROM categories ORDER BY name ASC`
+  );
+  return rows;
+}
 
-// export async function getCategoryById(id: string) {
-//     const [rows] = await pool.query('SELECT * FROM categories WHERE id = ?', [id]);
-//     return rows[0];
-// }
+export async function getCategoryById(id: number): Promise<Category | null> {
+  const [rows] = await pool.query<Category[]>(
+    `SELECT id, name, slug, description, image FROM categories WHERE id = ?`,
+    [id]
+  );
+  return rows[0] ?? null;
+}
 
-// export async function createCategory(categoryData: Partial<Category>) {
-//     const [result] = await pool.query(
-//         'INSERT INTO categories (name, slug, description, image) VALUES (?, ?, ?, ?)',
-//         [
-//             categoryData.name,
-//             categoryData.slug,
-//             categoryData.description,
-//             categoryData.image
-//         ]
-//     );
-//     return result;
-// }
+export async function createCategory(data: Partial<Category>): Promise<number> {
+  const [result] = await pool.query<ResultSetHeader>(
+    `INSERT INTO categories (name, slug, description, image) VALUES (?, ?, ?, ?)`,
+    [data.name, data.slug ?? null, data.description ?? null, data.image ?? null]
+  );
+  return result.insertId;
+}
 
-// export async function updateCategory(id: string, categoryData: Partial<Category>) {
-//     const [result] = await pool.query(
-//         'UPDATE categories SET name = ?, slug = ?, description = ?, image = ? WHERE id = ?',
-//         [
-//             categoryData.name,
-//             categoryData.slug,
-//             categoryData.description,
-//             categoryData.image,
-//             id
-//         ]
-//     );
-//     return result;
-// }
+export async function updateCategory(id: number, data: Partial<Category>): Promise<void> {
+  await pool.query(
+    `UPDATE categories SET name = ?, slug = ?, description = ?, image = ? WHERE id = ?`,
+    [data.name, data.slug ?? null, data.description ?? null, data.image ?? null, id]
+  );
+}
 
-// export async function deleteCategory(id: string) {
-//     const [result] = await pool.query('DELETE FROM categories WHERE id = ?', [id]);
-//     return result;
-// }
+export async function deleteCategory(id: number): Promise<void> {
+  await pool.query(`DELETE FROM categories WHERE id = ?`, [id]);
+}

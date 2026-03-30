@@ -1,15 +1,17 @@
-import { NextResponse } from 'next/server';
-import pool from '@/app/lib/db';
+import { getAllBrandsController, createBrandController, updateBrandController, deleteBrandController } from '@/app/controllers/brand.Controllers';
 
 export async function GET() {
-  try {
-    const [rows] = await pool.query(
-      `SELECT id, name
-       FROM brands
-       ORDER BY name ASC`
-    );
-    return NextResponse.json(rows);
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Không thể tải thương hiệu' }, { status: 500 });
-  }
+  return getAllBrandsController();
+}
+
+export async function POST(req: Request) {
+  return createBrandController(req);
+}
+
+export async function PUT(req: Request) {
+  return updateBrandController(req);
+}
+
+export async function DELETE(req: Request) {
+  return deleteBrandController(req);
 }

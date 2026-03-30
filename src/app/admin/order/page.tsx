@@ -15,13 +15,26 @@ export default function OrderAdmin() {
         setLoading(true);
         try {
             const res = await fetch('/api/order');
-            const data = await res.json();
+            if (!res.ok){
+                throw new Error(`HTTP error ${res.status}`);
+            } 
+            const text = await res.text();
+            if (!text) {
+                throw new Error('Empty response from API');
+            }
+            const data = JSON.parse(text);
             // Sắp xếp mới nhất lên đầu
             if (Array.isArray(data)) {
-                setOrders(data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
+                setOrders(
+                    data.sort(
+                        (a, b) => 
+                            new Date(b.created_at).getTime() - 
+                            new Date(a.created_at).getTime()
+                        )
+                    );
             }
         } catch (error) {
-            console.error(error);
+            console.error("Fetch order error",error);
         }
         setLoading(false);
     };

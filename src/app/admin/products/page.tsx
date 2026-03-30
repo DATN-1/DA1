@@ -376,14 +376,14 @@ export default function ProductsPage() {
             <table className="products-table">
               <thead>
                 <tr>
-                  <th>Hinh</th>
-                  <th>Ten san pham</th>
-                  <th>Danh muc</th>
-                  <th>Thuong hieu</th>
-                  <th>Gia</th>
+                  <th>Hình ảnh</th>
+                  <th>Tên sản phẩm</th>
+                  <th>Danh mục</th>
+                  <th>Thương hiệu</th>
+                  <th>Giá</th>
                   <th>Kho</th>
-                  <th>Trang thai</th>
-                  <th>Thao tac</th>
+                  <th>Trạng thái</th>
+                  <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>

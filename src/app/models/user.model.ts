@@ -15,8 +15,20 @@ export type UserRow = {
 };
 
 export async function getUserInfo() {
-    const UserInfo = await pool.query('SELECT * FROM users');
-    return UserInfo;
+    const [rows] = await pool.query(`
+        SELECT 
+            u.id, 
+            u.full_name as name, 
+            u.email, 
+            u.phone, 
+            u.created_at as createdAt, 
+            COUNT(o.id) as orderCount 
+        FROM users u
+        LEFT JOIN orders o ON u.id = o.user_id
+        GROUP BY u.id
+        ORDER BY u.created_at DESC
+    `);
+    return rows;
 }
 
 export async function findUserByEmail(email: string): Promise<UserRow | null> {

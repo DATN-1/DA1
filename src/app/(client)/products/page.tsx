@@ -260,9 +260,9 @@ function ProductsContent() {
                 {products.length === 0 && (
                   <div className="product-card" style={{ gridColumn: "1 / -1", textAlign: "center" }}>
                     <div className="product-info">
-                      <h3 className="product-name">Khong tim thay san pham</h3>
+                      <h3 className="product-name">Không tìm thấy sản phẩm</h3>
                       <p className="product-description">
-                        Thu tim voi tu khoa khac de xem cac san pham phu hop.
+                        Thử tìm với từ khóa khác để xem các sản phẩm phù hợp.
                       </p>
                     </div>
                   </div>

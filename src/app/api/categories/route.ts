@@ -1,15 +1,17 @@
-import { NextResponse } from 'next/server';
-import pool from '@/app/lib/db';
+import { getAllCategoriesController, createCategoryController, updateCategoryController, deleteCategoryController } from '@/app/controllers/category.Controllers';
 
 export async function GET() {
-  try {
-    const [rows] = await pool.query(
-      `SELECT id, name
-       FROM categories
-       ORDER BY name ASC`
-    );
-    return NextResponse.json(rows);
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Không thể tải danh mục' }, { status: 500 });
-  }
+  return getAllCategoriesController();
+}
+
+export async function POST(req: Request) {
+  return createCategoryController(req);
+}
+
+export async function PUT(req: Request) {
+  return updateCategoryController(req);
+}
+
+export async function DELETE(req: Request) {
+  return deleteCategoryController(req);
 }

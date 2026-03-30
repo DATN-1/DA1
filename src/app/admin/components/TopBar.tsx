@@ -1,8 +1,27 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
+
 export default function TopBar() {
+    const pathname = usePathname();
+
+    const getPageTitle = (path: string) => {
+        if (path.startsWith('/admin/products')) return 'Sản Phẩm';
+        if (path.startsWith('/admin/categories')) return 'Danh Mục';
+        if (path.startsWith('/admin/brands')) return 'Thương Hiệu';
+        if (path.startsWith('/admin/order')) return 'Đơn Hàng';
+        if (path.startsWith('/admin/user')) return 'Khách Hàng';
+        if (path.startsWith('/admin/blog')) return 'Bài viết';
+        if (path.startsWith('/admin/setting')) return 'Cài đặt';
+        return 'Tổng Quan';
+    };
+
+    const title = getPageTitle(pathname);
+
     return (
         <header className="top-bar">
             <div className="header-left">
-                <h1 className="page-title">Tổng Quan</h1>
+                <h1 className="page-title">{title}</h1>
             </div>
             <div className="header-tools">
                 <div className="notification-bell">

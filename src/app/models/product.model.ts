@@ -125,7 +125,7 @@ export async function findAllProducts() {
       p.name,
       p.price,
       p.stock,
-      p.image_url AS image,
+      p.image AS image,
       c.name as category_name,
       b.name as brand_name
     FROM products p 
@@ -159,7 +159,7 @@ export async function findProductVariants(productId: number) {
 
 export async function findProductGallery(productId: number, rawImage: unknown) {
   const [rows]: any = await pool.query(
-    `SELECT image_url
+    `SELECT image
      FROM variant_images
      WHERE product_id = ?
      ORDER BY id ASC`,
@@ -168,7 +168,7 @@ export async function findProductGallery(productId: number, rawImage: unknown) {
 
   const baseImages = parseProductImages(rawImage);
   const variantImages = Array.isArray(rows)
-    ? rows.map((row: { image_url: string }) => row.image_url).filter(Boolean)
+    ? rows.map((row: { image: string }) => row.image).filter(Boolean)
     : [];
 
   // Kiểm tra xem có ảnh biến thể từ DB không
@@ -246,7 +246,7 @@ export async function findRelatedProducts(productId: number, categoryId: number 
       p.id,
       p.name,
       p.price,
-      p.image_url AS image,
+      p.image AS image,
       p.description,
       COALESCE(AVG(CASE WHEN r.status = 'approved' THEN r.rating END), 0) AS average_rating,
       COUNT(CASE WHEN r.status = 'approved' THEN 1 END) AS review_count
@@ -273,7 +273,7 @@ export async function findRelatedProducts(productId: number, categoryId: number 
       p.id,
       p.name,
       p.price,
-      p.image_url AS image,
+      p.image AS image,
       p.description,
       COALESCE(AVG(CASE WHEN r.status = 'approved' THEN r.rating END), 0) AS average_rating,
       COUNT(CASE WHEN r.status = 'approved' THEN 1 END) AS review_count
@@ -315,7 +315,7 @@ export async function findProductById(id: string) {
   const product = rows[0];
   const [variants, galleryData, reviews, relatedProducts] = await Promise.all([
     findProductVariants(product.id),
-    findProductGallery(product.id, product.image_url),
+    findProductGallery(product.id, product.image),
     findProductReviews(product.id),
     findRelatedProducts(product.id, product.category_id ?? null),
   ]);
@@ -326,7 +326,7 @@ export async function findProductById(id: string) {
   
   return {
     ...product,
-    image: product.image_url,
+    image: product.image,
     variants: variants || [],
     gallery,
     variantGalleryMap,
@@ -362,7 +362,7 @@ export async function findProductsWithPagination(
       p.slug,
       p.price,
       p.discount_price,
-      p.image_url AS image,
+      p.image AS image,
       p.stock,
       p.weight AS size,
       p.description,
@@ -419,7 +419,7 @@ export async function createProduct(params: {
   name: string;
   price: number;
   stock: number;
-  image_url: string;
+  image: string;
   category_id: number | null;
   brand_id: number | null;
   description: string | null;
@@ -434,14 +434,14 @@ export async function createProduct(params: {
 
   const [result]: any = await pool.query(
     `INSERT INTO products
-      (name, slug, price, stock, image_url, category_id, brand_id, description, status)
+      (name, slug, price, stock, image, category_id, brand_id, description, status)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       params.name,
       slug,
       params.price,
       params.stock,
-      params.image_url,
+      params.image,
       params.category_id,
       params.brand_id,
       params.description,
@@ -458,7 +458,7 @@ export async function updateProductById(
     name: string;
     price: number;
     stock: number;
-    image_url: string;
+    image: string;
     category_id: number | null;
     brand_id: number | null;
     description: string | null;
@@ -471,7 +471,7 @@ export async function updateProductById(
       name = ?,
       price = ?,
       stock = ?,
-      image_url = ?,
+      image = ?,
       category_id = ?,
       brand_id = ?,
       description = ?,
@@ -481,7 +481,7 @@ export async function updateProductById(
       params.name,
       params.price,
       params.stock,
-      params.image_url,
+      params.image,
       params.category_id,
       params.brand_id,
       params.description,

@@ -1,0 +1,212 @@
+.profilePage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 2rem;
+  margin-top: 6rem;
+}
+
+.profileContainer {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.profileHeader {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+.profileHeader h1 {
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.profileHeader p {
+  margin: 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.profileForm {
+  padding: 2rem;
+}
+
+.formSection {
+  margin-bottom: 2rem;
+}
+
+.formSection:last-child {
+  margin-bottom: 0;
+}
+
+.formSection h2 {
+  color: #1f2937;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 2rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.formRow label {
+  display: flex;
+  align-items: center;
+  color: #374151;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.formControl {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.formControl:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.formControl:disabled {
+  background-color: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.formControl.disabled {
+  background-color: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.textarea {
+  min-height: 100px;
+  resize: vertical;
+  padding: 1rem;
+}
+
+.message {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.message.success {
+  background-color: #ecfdf5;
+  border: 1px solid #86efac;
+  color: #166534;
+}
+
+.message.error {
+  background-color: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+}
+
+.formActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btnPrimary,
+.btnSecondary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btnSecondary:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profilePage {
+    padding: 1rem;
+    margin-top: 5rem;
+  }
+
+  .profileHeader {
+    padding: 1.5rem;
+  }
+
+  .profileHeader h1 {
+    font-size: 1.5rem;
+  }
+
+  .profileForm {
+    padding: 1.5rem;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .formRow label {
+    margin-bottom: 0.5rem;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+  }
+}

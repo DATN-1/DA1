@@ -163,3 +163,57 @@ export async function sendPasswordResetCodeEmail(to: string, verificationCode: s
     'Bạn đã yêu cầu đặt lại mật khẩu. Hãy dùng mã OTP bên dưới để tiếp tục.'
   );
 }
+
+export async function sendContactEmail(params: {
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+}) {
+  const subjectMap: Record<string, string> = {
+    product: 'Thông tin sản phẩm',
+    order: 'Đặt hàng',
+    support: 'Hỗ trợ',
+    other: 'Khác',
+  };
+
+  const subjectLabel = subjectMap[params.subject] || params.subject || 'Liên hệ';
+  const recipientEmail = process.env.CONTACT_RECEIVE_EMAIL || senderEmail;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937;max-width:600px;margin:0 auto;">
+      <div style="background:linear-gradient(135deg,#d97706,#e11d48);padding:24px;border-radius:12px 12px 0 0;text-align:center;">
+        <h1 style="color:#fff;margin:0;font-size:22px;">📩 Tin nhắn liên hệ mới</h1>
+      </div>
+      <div style="background:#fff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="padding:10px 12px;font-weight:600;color:#6b7280;width:140px;vertical-align:top;">Họ và tên:</td>
+            <td style="padding:10px 12px;color:#111827;">${params.name}</td>
+          </tr>
+          <tr style="background:#f9fafb;">
+            <td style="padding:10px 12px;font-weight:600;color:#6b7280;vertical-align:top;">Email:</td>
+            <td style="padding:10px 12px;color:#111827;"><a href="mailto:${params.email}" style="color:#d97706;">${params.email}</a></td>
+          </tr>
+          ${params.phone ? `
+          <tr>
+            <td style="padding:10px 12px;font-weight:600;color:#6b7280;vertical-align:top;">Số điện thoại:</td>
+            <td style="padding:10px 12px;color:#111827;">${params.phone}</td>
+          </tr>` : ''}
+          <tr style="background:#f9fafb;">
+            <td style="padding:10px 12px;font-weight:600;color:#6b7280;vertical-align:top;">Chủ đề:</td>
+            <td style="padding:10px 12px;color:#111827;">${subjectLabel}</td>
+          </tr>
+        </table>
+        <div style="margin-top:20px;padding:16px;background:#fff7ed;border:1px solid #fdba74;border-radius:8px;">
+          <div style="font-weight:600;color:#9a3412;margin-bottom:8px;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Nội dung tin nhắn</div>
+          <div style="color:#1f2937;white-space:pre-wrap;">${params.message}</div>
+        </div>
+        <p style="color:#9ca3af;font-size:12px;margin-top:20px;text-align:center;">Email được gửi từ form liên hệ trên website Aromi Candle</p>
+      </div>
+    </div>
+  `;
+
+  return brevoSend(recipientEmail, `[Liên hệ] ${subjectLabel} - ${params.name}`, html);
+}

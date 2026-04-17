@@ -60,16 +60,18 @@ export async function createSocialUser(params: {
 export async function updateUserProfileById(params: {
     userId: number;
     full_name?: string | null;
+    phone?: string | null;
     avatar?: string | null;
     status?: 'active' | 'blocked';
 }) {
     const [result] = await pool.query(
         `UPDATE users
          SET full_name = COALESCE(?, full_name),
+             phone = COALESCE(?, phone),
              avatar = COALESCE(?, avatar),
              status = COALESCE(?, status)
          WHERE id = ?`,
-        [params.full_name ?? null, params.avatar ?? null, params.status ?? null, params.userId]
+        [params.full_name ?? null, params.phone ?? null, params.avatar ?? null, params.status ?? null, params.userId]
     );
     return result;
 }

@@ -25,32 +25,37 @@ export default function CategoriesSection() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch("/api/products?limit=all");
-        const data = await response.json();
-        const products = Array.isArray(data) ? data : [];
+        // Fetch categories and products in parallel
+        const [catRes, prodRes] = await Promise.all([
+          fetch("/api/categories"),
+          fetch("/api/products?limit=all"),
+        ]);
 
-        const categoryMap = new Map<number, CategoryItem>();
+        const catData = await catRes.json();
+        const prodData = await prodRes.json();
+
+        const catList = Array.isArray(catData) ? catData : [];
+        const products = Array.isArray(prodData) ? prodData : [];
+
+        // Count products per category using category_name matching
+        const countByName = new Map<string, number>();
         for (const product of products) {
-          const categoryId = Number(product?.category_id);
-          const categoryName = String(product?.category_name || "Khác");
-
-          if (!Number.isInteger(categoryId) || categoryId <= 0) {
-            continue;
-          }
-
-          if (!categoryMap.has(categoryId)) {
-            categoryMap.set(categoryId, {
-              id: categoryId,
-              name: categoryName,
-              count: 0,
-            });
-          }
-
-          const item = categoryMap.get(categoryId)!;
-          item.count += 1;
+          const name = String(product?.category_name || "").trim();
+          if (!name) continue;
+          countByName.set(name, (countByName.get(name) || 0) + 1);
         }
 
-        setCategories(Array.from(categoryMap.values()).sort((a, b) => b.count - a.count).slice(0, 4));
+        const result: CategoryItem[] = catList
+          .map((cat: { id: number; name: string }) => ({
+            id: cat.id,
+            name: cat.name,
+            count: countByName.get(cat.name) || 0,
+          }))
+          .filter((cat: CategoryItem) => cat.count > 0)
+          .sort((a: CategoryItem, b: CategoryItem) => b.count - a.count)
+          .slice(0, 4);
+
+        setCategories(result);
       } catch {
         setCategories([]);
       }

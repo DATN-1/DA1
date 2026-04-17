@@ -1,4 +1,9 @@
-export default function PartnerSection(){
+import { getAllBrands } from '@/app/models/brand.model';
+import PartnerCarousel from './PartnerCarousel';
+
+export default async function PartnerSection() {
+    const brands = await getAllBrands();
+
     return(
          <section style={{padding: "4rem 0", background: "#f9fafb"}}>
       <div className="container">
@@ -7,14 +12,7 @@ export default function PartnerSection(){
           <p>Được tin tưởng bởi các thương hiệu hàng đầu</p>
         </div>
 
-        <div className="partners-grid">
-          <div className="partner-logo">Partner 1</div>
-          <div className="partner-logo">Partner 2</div>
-          <div className="partner-logo">Partner 3</div>
-          <div className="partner-logo">Partner 4</div>
-          <div className="partner-logo">Partner 5</div>
-          <div className="partner-logo">Partner 6</div>
-        </div>
+        <PartnerCarousel brands={brands} />
       </div>
     </section>
     )

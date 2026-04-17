@@ -32,14 +32,22 @@ function hydrateOrder(order: any): Order {
 }
 
 export async function createOrder(orderData: Partial<Order>): Promise<number> {
+  // Ensure columns exist
+  try { await pool.query('ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0'); } catch (_e) {}
+  try { await pool.query('ALTER TABLE orders ADD COLUMN IF NOT EXISTS coupon_code VARCHAR(50) DEFAULT NULL'); } catch (_e) {}
+  try { await pool.query('ALTER TABLE orders ADD COLUMN IF NOT EXISTS original_amount DECIMAL(12,2) DEFAULT NULL'); } catch (_e) {}
+
   const [result] = (await pool.query(
-    `INSERT INTO orders (user_id, order_code, shipping_address, total_amount, payment_method, status) 
-     VALUES (?, ?, ?, ?, ?, 'pending')`,
+    `INSERT INTO orders (user_id, order_code, shipping_address, total_amount, original_amount, discount_amount, coupon_code, payment_method, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
     [
       orderData.user_id ?? null,
       orderData.order_code,
       buildShippingAddress(orderData),
       orderData.total_amount,
+      orderData.original_amount ?? orderData.total_amount,
+      orderData.discount_amount ?? 0,
+      orderData.coupon_code ?? null,
       orderData.payment_method
     ]
   )) as [ResultSetHeader, any];
@@ -101,4 +109,31 @@ export async function getAllOrders(): Promise<Order[]> {
     `SELECT * FROM orders`
   );
   return rows.map((row) => hydrateOrder(row));
+}
+
+export async function getOrdersByUserId(userId: number): Promise<Order[]> {
+  const [rows] = await pool.query<Order[]>(
+    `SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC`,
+    [userId]
+  );
+  return rows.map((row) => hydrateOrder(row));
+}
+
+export async function hasUserPurchasedProduct(userId: number, productId: number): Promise<boolean> {
+  const [rows]: any = await pool.query(
+    `SELECT COUNT(*) as cnt
+     FROM orders o
+     JOIN order_items oi ON oi.order_id = o.id
+     WHERE o.user_id = ? AND oi.product_id = ? AND o.status IN ('delivered', 'pending', 'processing', 'shipped')`,
+    [userId, productId]
+  );
+  return rows[0]?.cnt > 0;
+}
+
+export async function hasUserReviewedProduct(userId: number, productId: number): Promise<boolean> {
+  const [rows]: any = await pool.query(
+    `SELECT COUNT(*) as cnt FROM reviews WHERE user_id = ? AND product_id = ?`,
+    [userId, productId]
+  );
+  return rows[0]?.cnt > 0;
 }

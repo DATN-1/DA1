@@ -11,27 +11,6 @@ type SessionLikeUser = {
 };
 
 async function hasAdminAccess() {
-  const cookieStore = await cookies();
-  const userSessionCookie = cookieStore.get("user-session")?.value;
-
-  if (userSessionCookie) {
-    try {
-      const user = JSON.parse(userSessionCookie) as SessionLikeUser;
-      if (user?.role === "admin") {
-        return true;
-      }
-    } catch {
-      try {
-        const user = JSON.parse(decodeURIComponent(userSessionCookie)) as SessionLikeUser;
-        if (user?.role === "admin") {
-          return true;
-        }
-      } catch {
-        // Ignore invalid cookie and continue with NextAuth session check.
-      }
-    }
-  }
-
   const session = await getServerSession(authOptions as any);
   return (session as any)?.user?.role === "admin";
 }

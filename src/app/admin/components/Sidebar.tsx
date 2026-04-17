@@ -51,10 +51,12 @@ export default function Sidebar() {
         <aside className="sidebar">
             <div className="sidebar-header">
                 <div className="logo-container">
-                    <div className="logo-icon">
-                        <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
-                        </svg>
+                    <div style={{ background: 'transparent', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <img 
+                            src="/images/candle-logo.png" 
+                            alt="Aromi Admin Logo"
+                            style={{ width: 32, height: 32, objectFit: 'contain' }}
+                        />
                     </div>
                     <h2 className="text-gradient">AROMI ADMIN</h2>
                 </div>
@@ -129,12 +131,50 @@ export default function Sidebar() {
                     </Link>
                 </li>
 
+                <li className={`nav-item ${isActiveRoute("/admin/blog-categories") ? "active" : ""}`}>
+                    <Link href="/admin/blog-categories">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                        </svg>
+                        <span>DM Bài Viết</span>
+                    </Link>
+                </li>
+
+                <li className={`nav-item ${isActiveRoute("/admin/coupons") ? "active" : ""}`}>
+                    <Link href="/admin/coupons">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                        </svg>
+                        <span>Mã Giảm Giá</span>
+                    </Link>
+                </li>
+
+                <li className={`nav-item ${isActiveRoute("/admin/reviews") ? "active" : ""}`}>
+                    <Link href="/admin/reviews">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                        <span>Đánh Giá</span>
+                    </Link>
+                </li>
+
                 <li className={`nav-item ${isActiveRoute("/admin/banner") ? "active" : ""}`}>
                     <Link href="/admin/banner">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h10M4 18h10" />
                         </svg>
                         <span>Banner</span>
+                    </Link>
+                </li>
+
+                <li className={`nav-item ${isActiveRoute("/admin/gallery") ? "active" : ""}`}>
+                    <Link href="/admin/gallery">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5h16v14H4V5z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 15l5-5 4 4 3-3 4 4" />
+                            <circle cx="9" cy="9" r="1.5" />
+                        </svg>
+                        <span>Gallery</span>
                     </Link>
                 </li>
 

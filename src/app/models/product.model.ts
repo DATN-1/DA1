@@ -125,7 +125,11 @@ export async function findAllProducts() {
       p.name,
       p.price,
       p.stock,
-      p.image AS image,
+      p.image,
+      p.category_id,
+      p.brand_id,
+      p.description,
+      p.status,
       c.name as category_name,
       b.name as brand_name
     FROM products p 
@@ -166,6 +170,23 @@ export async function findProductGallery(productId: number, rawImage: unknown) {
     [productId]
   );
 
+  let linkedGalleryImages: string[] = [];
+  try {
+    const [galleryRows]: any = await pool.query(
+      `SELECT image_url AS image
+       FROM galleries
+       WHERE product_id = ? AND status = 'active'
+       ORDER BY display_order ASC, id ASC`,
+      [productId]
+    );
+
+    linkedGalleryImages = Array.isArray(galleryRows)
+      ? galleryRows.map((row: { image: string }) => row.image).filter(Boolean)
+      : [];
+  } catch {
+    linkedGalleryImages = [];
+  }
+
   const baseImages = parseProductImages(rawImage);
   const variantImages = Array.isArray(rows)
     ? rows.map((row: { image: string }) => row.image).filter(Boolean)
@@ -175,9 +196,10 @@ export async function findProductGallery(productId: number, rawImage: unknown) {
   // Nếu có, trộn ảnh cơ sở với ảnh biến thể
   // Nếu không, chỉ dùng ảnh cơ sở
   const hasVariantImages = Array.isArray(variantImages) && variantImages.length > 0;
-  const combinedImages = hasVariantImages 
-    ? [...new Set([...baseImages, ...variantImages])]
-    : baseImages;
+  const hasLinkedGalleryImages = Array.isArray(linkedGalleryImages) && linkedGalleryImages.length > 0;
+  const combinedImages = hasVariantImages
+    ? [...new Set([...(hasLinkedGalleryImages ? linkedGalleryImages : []), ...baseImages, ...variantImages])]
+    : [...new Set([...(hasLinkedGalleryImages ? linkedGalleryImages : []), ...baseImages])];
 
   return Object.freeze({
     images: combinedImages,
@@ -307,7 +329,7 @@ export async function findProductById(id: string) {
      GROUP BY p.id`,
     [id]
   );
-  
+
   if (!rows[0]) {
     return null;
   }
@@ -319,11 +341,11 @@ export async function findProductById(id: string) {
     findProductReviews(product.id),
     findRelatedProducts(product.id, product.category_id ?? null),
   ]);
-  
+
   const gallery = galleryData.images || [];
   const variantImagesExist = galleryData.variantImagesExist || false;
   const variantGalleryMap = buildVariantGalleryMap(variants || [], gallery || [], variantImagesExist);
-  
+
   return {
     ...product,
     image: product.image,
@@ -407,12 +429,39 @@ export async function countProducts(filters: ProductFilters) {
 }
 
 export async function incrementSoldCount(orderId: number): Promise<void> {
+  try {
+    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS sold_count INT UNSIGNED NOT NULL DEFAULT 0;`);
+  } catch (_e) {}
   await pool.query(`
     UPDATE products p
     LEFT JOIN order_items oi ON oi.product_id = p.id
     SET p.sold_count = p.sold_count + oi.quantity
     WHERE oi.order_id = ?
   `, [orderId]);
+}
+
+export async function decrementStockCount(orderId: number): Promise<void> {
+  const [items]: any = await pool.query('SELECT product_id, variant_info, quantity FROM order_items WHERE order_id = ?', [orderId]);
+  for (const item of (items || [])) {
+      if (item.variant_info) {
+          try {
+             const variantObj = typeof item.variant_info === 'string' ? JSON.parse(item.variant_info) : item.variant_info;
+             if (variantObj && variantObj.id) {
+                 await pool.query('UPDATE product_variants SET stock = GREATEST(stock - ?, 0) WHERE id = ?', [item.quantity, variantObj.id]);
+             }
+          } catch(_e) {}
+      }
+      await pool.query('UPDATE products SET stock = GREATEST(stock - ?, 0) WHERE id = ?', [item.quantity, item.product_id]);
+  }
+}
+
+export async function incrementViewCount(productId: number): Promise<void> {
+  try {
+    await pool.query(`
+      ALTER TABLE products ADD COLUMN IF NOT EXISTS view_count INT UNSIGNED NOT NULL DEFAULT 0;
+    `);
+  } catch {}
+  await pool.query('UPDATE products SET view_count = view_count + 1 WHERE id = ?', [productId]);
 }
 
 export async function createProduct(params: {

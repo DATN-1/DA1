@@ -1,0 +1,122 @@
+.page {
+  padding: 2rem 0 4rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  color: #1f2937;
+}
+
+.header p {
+  color: #64748b;
+  margin-top: 0.75rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.filterBtn {
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #fff;
+  padding: 0.45rem 0.95rem;
+  cursor: pointer;
+  color: #334155;
+  transition: all 0.2s ease;
+}
+
+.filterBtn:hover {
+  border-color: #fb923c;
+  color: #ea580c;
+}
+
+.filterBtnActive {
+  background: #fb923c;
+  border-color: #fb923c;
+  color: #fff;
+}
+
+.feedback {
+  text-align: center;
+  color: #475569;
+  margin-top: 1rem;
+}
+
+.feedbackError {
+  color: #dc2626;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.cardContent {
+  padding: 0.8rem 0.9rem 1rem;
+}
+
+.cardContent h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.cardContent span {
+  display: inline-block;
+  margin-top: 0.45rem;
+  font-size: 0.85rem;
+  color: #f97316;
+  font-weight: 600;
+}
+
+.productLink {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: #0f766e;
+  text-decoration: none;
+}
+
+.productLink:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

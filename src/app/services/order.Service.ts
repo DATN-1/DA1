@@ -1,5 +1,5 @@
 import { getOrderById, updateStatus, getAllOrders, createOrder, createOrderItems, getOrderItems } from '@/app/models/order.model';
-import { incrementSoldCount } from '@/app/models/product.model';
+import { incrementSoldCount, decrementStockCount } from '@/app/models/product.model';
 import { Order } from '@/app/type/orderType';
 
 export async function createOrderService(orderData: Partial<Order>, items: any[]) {
@@ -7,6 +7,7 @@ export async function createOrderService(orderData: Partial<Order>, items: any[]
   if (items && items.length > 0) {
     await createOrderItems(orderId, items);
   }
+  await decrementStockCount(orderId);
   return orderId;
 }
 

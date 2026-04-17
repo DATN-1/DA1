@@ -6,6 +6,8 @@ export type AddressRow = {
   recipient_name: string;
   phone: string;
   address_line: string;
+  province_code: string | null;
+  district_code: string | null;
   created_at: Date;
   updated_at: Date;
 };
@@ -25,6 +27,12 @@ async function ensureAddressTable() {
       INDEX (user_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+  try {
+    await pool.query('ALTER TABLE addresses ADD COLUMN province_code VARCHAR(20) DEFAULT NULL;');
+  } catch (_e) {}
+  try {
+    await pool.query('ALTER TABLE addresses ADD COLUMN district_code VARCHAR(20) DEFAULT NULL;');
+  } catch (_e) {}
 }
 
 export async function findAddressByUserId(userId: number): Promise<AddressRow | null> {
@@ -37,27 +45,27 @@ export async function createOrUpdateAddress(
   userId: number,
   recipient_name: string,
   phone: string,
-  address_line: string
+  address_line: string,
+  province_code: string | null = null,
+  district_code: string | null = null
 ) {
   await ensureAddressTable();
-  
+
   const existingAddress = await findAddressByUserId(userId);
-  
+
   if (existingAddress) {
-    // Update existing address
     const [result] = await pool.query(
-      `UPDATE addresses 
-       SET recipient_name = ?, phone = ?, address_line = ?
+      `UPDATE addresses
+       SET recipient_name = ?, phone = ?, address_line = ?, province_code = ?, district_code = ?
        WHERE user_id = ?`,
-      [recipient_name, phone, address_line, userId]
+      [recipient_name, phone, address_line, province_code, district_code, userId]
     );
     return result;
   } else {
-    // Create new address
     const [result] = await pool.query(
-      `INSERT INTO addresses (user_id, recipient_name, phone, address_line)
-       VALUES (?, ?, ?, ?)`,
-      [userId, recipient_name, phone, address_line]
+      `INSERT INTO addresses (user_id, recipient_name, phone, address_line, province_code, district_code)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [userId, recipient_name, phone, address_line, province_code, district_code]
     );
     return result;
   }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createProductReview, findProductById } from "@/app/models/product.model";
+import { hasUserPurchasedProduct, hasUserReviewedProduct } from "@/app/models/order.model";
 
 export async function POST(
   request: Request,
@@ -33,6 +34,18 @@ export async function POST(
     const product = await findProductById(String(productId));
     if (!product) {
       return NextResponse.json({ error: "Sản phẩm không tồn tại." }, { status: 404 });
+    }
+
+    // Kiểm tra đã mua chưa
+    const hasPurchased = await hasUserPurchasedProduct(userId, productId);
+    if (!hasPurchased) {
+      return NextResponse.json({ error: "Bạn cần mua sản phẩm này trước khi đánh giá." }, { status: 403 });
+    }
+
+    // Kiểm tra đã đánh giá chưa
+    const hasReviewed = await hasUserReviewedProduct(userId, productId);
+    if (hasReviewed) {
+      return NextResponse.json({ error: "Bạn đã đánh giá sản phẩm này rồi." }, { status: 409 });
     }
 
     const review = await createProductReview({

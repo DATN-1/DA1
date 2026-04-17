@@ -91,6 +91,9 @@ export default function ProductDetail() {
                 setProduct({ ...data, gallery });
                 setSelectedVariant(data?.variants?.[0] || null);
                 setSelectedImage(gallery[0] || '/images/default-product.png');
+
+                // Tăng lượt xem (fire-and-forget)
+                fetch(`/api/products/${id}`, { method: 'PATCH' }).catch(() => {});
             } catch {
                 setProduct(null);
                 setErrorMessage('Lỗi mạng hoặc lỗi hệ thống');
@@ -147,7 +150,7 @@ export default function ProductDetail() {
     }, [product, selectedVariant?.id, selectedImage]);
 
     if (isLoading) {
-        return <div className="container"><div className="loading">Loading...</div></div>;
+        return <div className="container"><div className="loading">Đang tải...</div></div>;
     }
 
     if (errorMessage) {
@@ -226,6 +229,7 @@ export default function ProductDetail() {
                 name: product.name,
                 price: displayPrice,
                 image: activeGallery.length > 0 ? activeGallery : [mainImage],
+                maxStock: displayStock,
                 variant: selectedVariant
                     ? {
                             id: selectedVariant.id,
@@ -317,7 +321,7 @@ export default function ProductDetail() {
                         <div className="product-gallery">
                             <div className="main-image-container detail-gallery-left">
                                 <img id="main-image" src={mainImage} alt={product.name} className="main-product-image" />
-                                <div className="product-badge-detail">{product.is_featured ? 'Featured' : 'New'}</div>
+                                <div className="product-badge-detail">{product.is_featured ? 'Nổi bật' : 'Mới'}</div>
                             </div>
                             <div className="thumbnail-container">
                                 {activeGallery.map((image: string, index: number) => (
@@ -548,7 +552,7 @@ export default function ProductDetail() {
                                         </div>
                                         <div className="product-info">
                                             <h3 className="product-name">{relatedProduct.name}</h3>
-                                            <p className="product-description">{relatedProduct.description || 'Sản phẩm cùng nhóm mùi hương và trải nghiệm tương tự.'}</p>
+                                            <p className="product-description" style={{ display: '-webkit-box', WebkitLineClamp: 5, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{relatedProduct.description || 'Sản phẩm cùng nhóm mùi hương và trải nghiệm tương tự.'}</p>
                                             <div className="product-footer">
                                                 <span className="product-price">{formatPrice(relatedProduct.price)}đ</span>
                                                 <div className="rating">{renderStars(Number(relatedProduct.average_rating) || 5)}</div>

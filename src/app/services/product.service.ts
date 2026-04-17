@@ -103,7 +103,7 @@ function validateAdminProductPayload(payload: AdminProductPayload) {
 
 export async function createAdminProduct(payload: AdminProductPayload) {
   validateAdminProductPayload(payload);
-  return await createProduct(payload);
+  return await createProduct({ ...payload, image: payload.image_url });
 }
 
 export async function updateAdminProduct(id: number, payload: AdminProductPayload) {
@@ -111,7 +111,7 @@ export async function updateAdminProduct(id: number, payload: AdminProductPayloa
     throw new Error("ID không hợp lệ");
   }
   validateAdminProductPayload(payload);
-  return await updateProductById(id, payload);
+  return await updateProductById(id, { ...payload, image: payload.image_url });
 }
 
 export async function deleteAdminProduct(id: number) {

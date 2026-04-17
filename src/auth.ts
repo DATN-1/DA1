@@ -1,7 +1,13 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import crypto from 'crypto';
 import { createSocialUser, findUserByEmail, updateUserProfileById } from '@/app/models/user.model';
+
+function hashPassword(password: string) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
 
 export const authOptions = {
   providers: [
@@ -12,6 +18,39 @@ export const authOptions = {
     FacebookProvider({
       clientId: process.env.FACEBOOK_CLIENT_ID || '',
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET || '',
+    }),
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Vui lòng nhập email và mật khẩu.');
+        }
+
+        const user = await findUserByEmail(credentials.email);
+        if (!user) {
+          throw new Error('Email hoặc mật khẩu không đúng.');
+        }
+
+        if (user.status !== 'active') {
+          throw new Error('Tài khoản chưa kích hoạt hoặc bị chặn.');
+        }
+
+        const passwordHash = hashPassword(credentials.password);
+        if (passwordHash !== user.password) {
+          throw new Error('Email hoặc mật khẩu không đúng.');
+        }
+
+        return {
+          id: String(user.id),
+          email: user.email,
+          name: user.full_name,
+          role: user.role,
+        };
+      }
     }),
   ],
   session: {
@@ -46,8 +85,16 @@ export const authOptions = {
       return true;
     },
     async jwt({ token, user, account }) {
-      if ((account?.provider === 'google' || account?.provider === 'facebook') && user?.email) {
-        const dbUser = await findUserByEmail(String(user.email).toLowerCase());
+      // First sign-in: set token custom properties from the returned user
+      if (user) {
+        (token as any).id = user.id;
+        (token as any).role = (user as any).role || 'customer';
+        (token as any).full_name = user.name;
+      }
+
+      // For social logins, we must fetch the DB to get their role and latest info
+      if ((account?.provider === 'google' || account?.provider === 'facebook') && token.email) {
+        const dbUser = await findUserByEmail(String(token.email).toLowerCase());
         if (dbUser) {
           (token as any).id = dbUser.id;
           (token as any).role = dbUser.role;

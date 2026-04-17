@@ -1,36 +1,23 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/auth';
 import { findUserByEmail, updateUserProfileById } from '@/app/models/user.model';
 import { findAddressByUserId, createOrUpdateAddress } from '@/app/models/address.model';
 
 export async function GET() {
   try {
-    // Get user data from cookie (set by client after login)
-    const cookieStore = await cookies();
-    const userCookie = cookieStore.get('user-session')?.value;
+    const session = await getServerSession(authOptions as any);
 
-    if (!userCookie) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let userData;
-    try {
-      userData = JSON.parse(userCookie);
-    } catch {
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
-    }
-
-    if (!userData.email) {
-      return NextResponse.json({ error: 'Invalid session data' }, { status: 401 });
-    }
-
-    const user = await findUserByEmail(userData.email);
+    const user = await findUserByEmail(session.user.email);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Verify user ID matches
-    if (user.id !== userData.id) {
+    if (String(user.id) !== String((session.user as any).id)) {
       return NextResponse.json({ error: 'Session mismatch' }, { status: 401 });
     }
 
@@ -49,6 +36,8 @@ export async function GET() {
         recipient_name: address.recipient_name,
         phone: address.phone,
         address_line: address.address_line,
+        province_code: address.province_code,
+        district_code: address.district_code,
       } : null
     });
   } catch (error: any) {
@@ -59,26 +48,13 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    // Get user data from cookie
-    const cookieStore = await cookies();
-    const userCookie = cookieStore.get('user-session')?.value;
+    const session = await getServerSession(authOptions as any);
 
-    if (!userCookie) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let userData;
-    try {
-      userData = JSON.parse(userCookie);
-    } catch {
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
-    }
-
-    if (!userData.email) {
-      return NextResponse.json({ error: 'Invalid session data' }, { status: 401 });
-    }
-
-    const { full_name, phone, recipient_name, address_line } = await request.json();
+    const { full_name, phone, recipient_name, address_line, province_code, district_code } = await request.json();
 
     if (!full_name?.trim()) {
       return NextResponse.json({ error: 'Họ và tên là bắt buộc' }, { status: 400 });
@@ -88,13 +64,12 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Thông tin giao hàng là bắt buộc' }, { status: 400 });
     }
 
-    const user = await findUserByEmail(userData.email);
+    const user = await findUserByEmail(session.user.email);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Verify user ID matches
-    if (user.id !== userData.id) {
+    if (String(user.id) !== String((session.user as any).id)) {
       return NextResponse.json({ error: 'Session mismatch' }, { status: 401 });
     }
 
@@ -110,7 +85,9 @@ export async function PUT(request: Request) {
       user.id,
       recipient_name.trim(),
       phone?.trim() || '',
-      address_line.trim()
+      address_line.trim(),
+      province_code || null,
+      district_code || null
     );
 
     return NextResponse.json({
@@ -127,6 +104,8 @@ export async function PUT(request: Request) {
         recipient_name: recipient_name.trim(),
         phone: phone?.trim() || '',
         address_line: address_line.trim(),
+        province_code: province_code || null,
+        district_code: district_code || null,
       }
     });
   } catch (error: any) {

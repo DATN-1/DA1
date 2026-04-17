@@ -2,282 +2,291 @@
 
 import { useEffect, useState } from "react";
 
+// Thứ tự các trạng thái - chỉ được đi tiến, không được lùi
+const STATUS_FLOW = ['pending', 'processing', 'shipped', 'delivered'];
+const STATUS_LABELS: Record<string, string> = {
+    pending: 'Chờ xác nhận',
+    processing: 'Đang xử lý',
+    shipped: 'Đang giao hàng',
+    delivered: 'Đã giao thành công',
+    cancelled: 'Đã hủy',
+};
+const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
+    pending:    { bg: '#fef3c7', color: '#d97706' },
+    processing: { bg: '#e0e7ff', color: '#4f46e5' },
+    shipped:    { bg: '#dbeafe', color: '#2563eb' },
+    delivered:  { bg: '#dcfce7', color: '#16a34a' },
+    cancelled:  { bg: '#fee2e2', color: '#dc2626' },
+};
+
+function getNextStatus(current: string): string | null {
+    const idx = STATUS_FLOW.indexOf(current);
+    if (idx === -1 || idx >= STATUS_FLOW.length - 1) return null;
+    return STATUS_FLOW[idx + 1];
+}
+
 export default function OrderAdmin() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-
-    // Modals state
     const [viewOrder, setViewOrder] = useState<any | null>(null);
-    const [confirmPaymentOrder, setConfirmPaymentOrder] = useState<any | null>(null);
-    const [cancelOrder, setCancelOrder] = useState<any | null>(null);
+    const [confirmNext, setConfirmNext] = useState<{ order: any; nextStatus: string } | null>(null);
+    const [confirmCancel, setConfirmCancel] = useState<any | null>(null);
+    const [updating, setUpdating] = useState<number | null>(null);
+    const [filterStatus, setFilterStatus] = useState('all');
+    const [search, setSearch] = useState('');
 
     const fetchOrders = async () => {
         setLoading(true);
         try {
             const res = await fetch('/api/order');
-            if (!res.ok){
-                throw new Error(`HTTP error ${res.status}`);
-            } 
-            const text = await res.text();
-            if (!text) {
-                throw new Error('Empty response from API');
-            }
-            const data = JSON.parse(text);
-            // Sắp xếp mới nhất lên đầu
+            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+            const data = await res.json();
             if (Array.isArray(data)) {
-                setOrders(
-                    data.sort(
-                        (a, b) => 
-                            new Date(b.created_at).getTime() - 
-                            new Date(a.created_at).getTime()
-                        )
-                    );
+                setOrders(data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
             }
         } catch (error) {
-            console.error("Fetch order error",error);
+            console.error("Fetch order error", error);
         }
         setLoading(false);
     };
 
-    useEffect(() => {
-        fetchOrders();
-    }, []);
+    useEffect(() => { fetchOrders(); }, []);
 
-    const handleConfirmPayment = async () => {
-        if (!confirmPaymentOrder) return;
-        try {
-            // Chuyển trạng thái sang đang giao hàng (shipping) sau khi xác nhận thanh toán
-            const res = await fetch('/api/order', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: confirmPaymentOrder.id, status: 'shipped', payment_status: 'paid' })
-            });
-            if (res.ok) {
-                setConfirmPaymentOrder(null);
-                fetchOrders();
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Lỗi cập nhật!");
-        }
-    };
-
-    const handleCancelOrderSubmit = async () => {
-        if (!cancelOrder) return;
+    const handleAdvanceStatus = async () => {
+        if (!confirmNext) return;
+        setUpdating(confirmNext.order.id);
         try {
             const res = await fetch('/api/order', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: cancelOrder.id, status: 'cancelled' })
+                body: JSON.stringify({ id: confirmNext.order.id, status: confirmNext.nextStatus })
             });
-            if (res.ok) {
-                setCancelOrder(null);
-                fetchOrders();
-            }
-        } catch (error) {
-            console.error(error);
-        }
+            if (res.ok) { setConfirmNext(null); fetchOrders(); }
+            else alert('Cập nhật thất bại!');
+        } catch { alert('Lỗi kết nối!'); }
+        setUpdating(null);
     };
 
-    const renderStatusBadge = (status: string) => {
-        if (!status) return <span className="badge" style={{ background: '#fef3c7', color: '#d97706', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>Chưa thanh toán</span>;
-        switch (status) {
-            case 'pending':
-            case 'chưa thanh toán':
-                return <span className="badge" style={{ background: '#fef3c7', color: '#d97706', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>Chưa thanh toán</span>;
-            case 'shipping':
-            case 'shipped':
-            case 'processing':
-            case 'đang giao hàng':
-                return <span className="badge" style={{ background: '#e0e7ff', color: '#059669', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>Đang giao hàng</span>;
-            case 'completed':
-            case 'delivered':
-            case 'hoàn thành':
-                return <span className="badge badge-success" style={{ background: '#dcfce3', color: '#166534', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>Hoàn thành</span>;
-            case 'cancelled':
-            case 'đã hủy':
-                return <span className="badge badge-danger" style={{ background: '#fee2e2', color: '#dc2626', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>Đã hủy</span>;
-            default:
-                return <span className="badge">{status}</span>;
-        }
+    const handleCancelOrder = async () => {
+        if (!confirmCancel) return;
+        setUpdating(confirmCancel.id);
+        try {
+            const res = await fetch('/api/order', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: confirmCancel.id, status: 'cancelled' })
+            });
+            if (res.ok) { setConfirmCancel(null); fetchOrders(); }
+            else alert('Cập nhật thất bại!');
+        } catch { alert('Lỗi kết nối!'); }
+        setUpdating(null);
     };
 
     const formatMoney = (val: number) => new Intl.NumberFormat('vi-VN').format(val || 0) + 'đ';
+    const formatDate = (d: string) => {
+        const date = new Date(d);
+        return `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}/${date.getFullYear()} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+    };
+
+    const statusBadge = (status: string) => {
+        const s = STATUS_COLORS[status] || { bg: '#f1f5f9', color: '#64748b' };
+        return (
+            <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: s.bg, color: s.color }}>
+                {STATUS_LABELS[status] || status}
+            </span>
+        );
+    };
+
+    const filtered = orders.filter(o => {
+        if (filterStatus !== 'all' && o.status !== filterStatus) return false;
+        if (search.trim()) {
+            const q = search.toLowerCase();
+            return (o.order_code || '').toLowerCase().includes(q) || (o.recipient_name || '').toLowerCase().includes(q);
+        }
+        return true;
+    });
 
     return (
         <div className="content-padding">
-            <div className="data-card" style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                <div className="card-header" style={{ marginBottom: '20px' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Danh sách đơn hàng</h2>
-                </div>
-                
-                {loading ? (
-                    <div>Đang tải dữ liệu...</div>
-                ) : (
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                        <thead>
-                            <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #e5e7eb' }}>
-                                <th style={{ padding: '12px' }}>Mã Đơn</th>
-                                <th style={{ padding: '12px' }}>Khách Hàng</th>
-                                <th style={{ padding: '12px' }}>Tổng Tiền</th>
-                                <th style={{ padding: '12px' }}>Thanh Toán</th>
-                                <th style={{ padding: '12px' }}>Ngày Đặt</th>
-                                <th style={{ padding: '12px' }}>Trạng Thái</th>
-                                <th style={{ padding: '12px', textAlign: 'center' }}>Thao Tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orders.map(order => (
-                                <tr key={order.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                                    <td style={{ padding: '12px', fontWeight: 'bold' }}>{order.order_code}</td>
-                                    <td style={{ padding: '12px' }}>
-                                        <div>{order.recipient_name}</div>
-                                        <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>{order.recipient_phone}</div>
-                                    </td>
-                                    <td style={{ padding: '12px', color: '#b45309', fontWeight: 'bold' }}>{formatMoney(order.total_amount)}</td>
-                                    <td style={{ padding: '12px' }}>{order.payment_method === 'banking' ? 'Chuyển khoản' : order.payment_method === 'momo' ? 'MoMo' : 'COD'}</td>
-                                    <td style={{ padding: '12px', fontSize: '0.85rem' }}>{new Date(order.created_at).toLocaleString('vi-VN')}</td>
-                                    <td style={{ padding: '12px' }}>{renderStatusBadge(order.status)}</td>
-                                    <td style={{ padding: '12px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                        
-                                        {/* Action: Xem thông tin */}
-                                        <button onClick={() => setViewOrder(order)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '6px 8px', borderRadius: '4px', cursor: 'pointer' }} title="Xem thông tin đơn hàng">
-                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                            </svg>
-                                        </button>
-
-                                        {/* Action: Xác nhận thanh toán (chỉ khi pending) */}
-                                        {(!order.status || order.status === 'pending' || order.status === 'chưa thanh toán') && (
-                                            <button onClick={() => setConfirmPaymentOrder(order)} style={{ background: '#10b981', color: 'white', border: 'none', padding: '6px 8px', borderRadius: '4px', cursor: 'pointer' }} title="Xác nhận khách đã thanh toán">
-                                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        )}
-
-                                        {/* Action: Hủy đơn hàng */}
-                                        {order.status !== 'completed' && order.status !== 'delivered' && order.status !== 'cancelled' && order.status !== 'hoàn thành' && order.status !== 'đã hủy' && (
-                                            <button onClick={() => setCancelOrder(order)} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 8px', borderRadius: '4px', cursor: 'pointer' }} title="Hủy đơn hàng">
-                                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
-                                        )}
-
-                                    </td>
-                                </tr>
+            <div style={{ background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+                {/* Header */}
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                    <h2 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>Quản lý đơn hàng</h2>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <input
+                            placeholder="Tìm mã đơn / tên khách..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, width: 220 }}
+                        />
+                        <select
+                            value={filterStatus}
+                            onChange={e => setFilterStatus(e.target.value)}
+                            style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13 }}
+                        >
+                            <option value="all">Tất cả trạng thái</option>
+                            {Object.entries(STATUS_LABELS).map(([k, v]) => (
+                                <option key={k} value={k}>{v}</option>
                             ))}
-                            {orders.length === 0 && (
-                                <tr>
-                                    <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>Chưa có đơn hàng nào</td>
+                        </select>
+                    </div>
+                </div>
+
+                {loading ? (
+                    <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>Đang tải dữ liệu...</div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                            <thead>
+                                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>Mã đơn</th>
+                                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>Khách hàng</th>
+                                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>Tổng tiền</th>
+                                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>Thanh toán</th>
+                                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>Ngày đặt</th>
+                                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>Trạng thái</th>
+                                    <th style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>Thao tác</th>
                                 </tr>
-                            )}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {filtered.length === 0 && (
+                                    <tr><td colSpan={7} style={{ padding: 32, textAlign: 'center', color: '#9ca3af' }}>Không có đơn hàng nào</td></tr>
+                                )}
+                                {filtered.map(order => {
+                                    const next = getNextStatus(order.status);
+                                    const canCancel = order.status !== 'delivered' && order.status !== 'cancelled';
+                                    return (
+                                        <tr key={order.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                            <td style={{ padding: '10px 14px', fontWeight: 700, color: '#1e293b' }}>{order.order_code}</td>
+                                            <td style={{ padding: '10px 14px' }}>
+                                                <div style={{ fontWeight: 500 }}>{order.recipient_name}</div>
+                                                <div style={{ fontSize: 12, color: '#6b7280' }}>{order.recipient_phone}</div>
+                                            </td>
+                                            <td style={{ padding: '10px 14px' }}>
+                                                <div style={{ fontSize: 12, color: '#6b7280' }}>Gốc: {formatMoney(order.original_amount ?? order.total_amount)}</div>
+                                                {Number(order.discount_amount) > 0 && (
+                                                    <div style={{ fontSize: 12, color: '#ef4444' }}>- Giảm: {formatMoney(order.discount_amount)} <small>({order.coupon_code})</small></div>
+                                                )}
+                                                <div style={{ fontWeight: 700, color: '#b45309' }}>Thu: {formatMoney(order.total_amount)}</div>
+                                            </td>
+                                            <td style={{ padding: '10px 14px' }}>
+                                                {order.payment_method === 'banking' ? 'Chuyển khoản' : order.payment_method === 'momo' ? 'MoMo' : 'COD'}
+                                            </td>
+                                            <td style={{ padding: '10px 14px', color: '#64748b', whiteSpace: 'nowrap' }}>{formatDate(order.created_at)}</td>
+                                            <td style={{ padding: '10px 14px' }}>{statusBadge(order.status)}</td>
+                                            <td style={{ padding: '10px 14px' }}>
+                                                <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'nowrap' }}>
+                                                    {/* Xem chi tiết */}
+                                                    <button
+                                                        onClick={() => setViewOrder(order)}
+                                                        title="Xem chi tiết"
+                                                        style={{ background: '#3b82f6', color: 'white', border: 'none', borderRadius: 6, padding: '5px 8px', cursor: 'pointer' }}
+                                                    >
+                                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                        </svg>
+                                                    </button>
+
+                                                    {/* Chuyển trạng thái tiếp theo */}
+                                                    {next && (
+                                                        <button
+                                                            onClick={() => setConfirmNext({ order, nextStatus: next })}
+                                                            disabled={updating === order.id}
+                                                            title={`Chuyển sang: ${STATUS_LABELS[next]}`}
+                                                            style={{ background: '#10b981', color: 'white', border: 'none', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}
+                                                        >
+                                                            {STATUS_LABELS[next]} →
+                                                        </button>
+                                                    )}
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
 
-            {/* Modal Popup: Xem thông tin đơn */}
+            {/* Modal: Xem chi tiết đơn */}
             {viewOrder && (
-                <div style={{ display: 'flex', zIndex: 9999, background: 'rgba(0,0,0,0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ background: 'white', padding: '2.5rem', borderRadius: '1rem', maxWidth: '500px', width: '90%', maxHeight: '90vh', overflowY: 'auto', textAlign: 'left', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', textAlign: 'center', color: '#111827' }}>Chi Tiết Đơn Hàng</h2>
-                        
-                        <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '1.5rem' }}>
-                            <p style={{ margin: '8px 0', fontSize: '1.05rem' }}><strong>Mã ĐH:</strong> {viewOrder.order_code}</p>
-                            <p style={{ margin: '8px 0' }}><strong>Khách hàng:</strong> {viewOrder.recipient_name}</p>
-                            <p style={{ margin: '8px 0' }}><strong>Điện thoại:</strong> {viewOrder.recipient_phone}</p>
-                            <p style={{ margin: '8px 0' }}><strong>Địa chỉ:</strong> {viewOrder.shipping_address}</p>
-                            <p style={{ margin: '8px 0' }}><strong>Phương thức:</strong> {viewOrder.payment_method === 'banking' ? 'Chuyển khoản VietQR' : viewOrder.payment_method === 'momo' ? 'Ví MoMo' : 'Thanh toán tiền mặt (COD)'}</p>
-                            <p style={{ margin: '8px 0', color: '#b45309', fontSize: '1.1rem' }}><strong>Tổng tiền:</strong> {formatMoney(viewOrder.total_amount)}</p>
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ background: 'white', borderRadius: 14, padding: '2rem', maxWidth: 520, width: '90%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.2)' }}>
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1.25rem', textAlign: 'center' }}>Chi tiết đơn hàng</h2>
+                        <div style={{ background: '#f8fafc', borderRadius: 8, padding: '1rem', marginBottom: '1.25rem', fontSize: 14 }}>
+                            <p style={{ margin: '6px 0' }}><strong>Mã đơn:</strong> {viewOrder.order_code}</p>
+                            <p style={{ margin: '6px 0' }}><strong>Khách hàng:</strong> {viewOrder.recipient_name}</p>
+                            <p style={{ margin: '6px 0' }}><strong>Điện thoại:</strong> {viewOrder.recipient_phone}</p>
+                            <p style={{ margin: '6px 0' }}><strong>Địa chỉ:</strong> {viewOrder.shipping_address}</p>
+                            <p style={{ margin: '6px 0' }}><strong>Thanh toán:</strong> {viewOrder.payment_method === 'banking' ? 'Chuyển khoản' : viewOrder.payment_method === 'momo' ? 'Ví MoMo' : 'Tiền mặt khi nhận (COD)'}</p>
+                            <p style={{ margin: '6px 0' }}><strong>Trạng thái:</strong> {statusBadge(viewOrder.status)}</p>
+                            <p style={{ margin: '6px 0' }}><strong>Tiền gốc:</strong> {formatMoney(viewOrder.original_amount ?? viewOrder.total_amount)}</p>
+                            {Number(viewOrder.discount_amount) > 0 && (
+                                <p style={{ margin: '6px 0', color: '#ef4444' }}><strong>Giảm giá ({viewOrder.coupon_code}):</strong> -{formatMoney(viewOrder.discount_amount)}</p>
+                            )}
+                            <p style={{ margin: '6px 0', color: '#b45309', fontSize: 16 }}><strong>Tổng thu:</strong> {formatMoney(viewOrder.total_amount)}</p>
                         </div>
-
                         {viewOrder.items && viewOrder.items.length > 0 && (
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '1rem', color: '#374151' }}>Chi tiết sản phẩm</h3>
-                                <div style={{ border: '1px solid #e5e7eb', borderRadius: '0.5rem', overflow: 'hidden' }}>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                                        <thead style={{ background: '#f3f4f6' }}>
-                                            <tr>
-                                                <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #e5e7eb' }}>Sản phẩm</th>
-                                                <th style={{ padding: '8px', textAlign: 'center', borderBottom: '1px solid #e5e7eb' }}>SL</th>
-                                                <th style={{ padding: '8px', textAlign: 'right', borderBottom: '1px solid #e5e7eb' }}>Giá</th>
+                            <div style={{ marginBottom: '1.25rem' }}>
+                                <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Sản phẩm đặt mua</h3>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, border: '1px solid #e5e7eb', borderRadius: 8, overflow: 'hidden' }}>
+                                    <thead style={{ background: '#f3f4f6' }}>
+                                        <tr>
+                                            <th style={{ padding: '8px 10px', textAlign: 'left' }}>Sản phẩm</th>
+                                            <th style={{ padding: '8px 10px', textAlign: 'center' }}>SL</th>
+                                            <th style={{ padding: '8px 10px', textAlign: 'right' }}>Giá</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {viewOrder.items.map((item: any) => (
+                                            <tr key={item.id} style={{ borderTop: '1px solid #e5e7eb' }}>
+                                                <td style={{ padding: '8px 10px' }}>{item.product_name || `SP #${item.product_id}`}</td>
+                                                <td style={{ padding: '8px 10px', textAlign: 'center' }}>x{item.quantity}</td>
+                                                <td style={{ padding: '8px 10px', textAlign: 'right', color: '#b45309' }}>{formatMoney(item.price)}</td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            {viewOrder.items.map((item: any) => (
-                                                <tr key={item.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                                                    <td style={{ padding: '8px' }}>
-                                                        <span style={{ fontWeight: '500' }}>{item.product_name || `ID SP: ${item.product_id}`}</span>
-                                                    </td>
-                                                    <td style={{ padding: '8px', textAlign: 'center' }}>x{item.quantity}</td>
-                                                    <td style={{ padding: '8px', textAlign: 'right', color: '#b45309' }}>{formatMoney(item.price)}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         )}
-
-                        <button className="btn btn-dark btn-full" style={{ width: '100%', padding: '1rem', background: '#374151', color: 'white', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setViewOrder(null)}>Đóng</button>
+                        <button onClick={() => setViewOrder(null)} style={{ width: '100%', padding: '0.75rem', background: '#1e293b', color: 'white', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>
+                            Đóng
+                        </button>
                     </div>
                 </div>
             )}
 
-            {/* Modal Popup: Xác nhận thanh toán */}
-            {confirmPaymentOrder && (
-                <div style={{ display: 'flex', zIndex: 9999, background: 'rgba(0,0,0,0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ background: 'white', padding: '2rem', borderRadius: '1rem', maxWidth: '450px', width: '90%', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
-                        <div style={{ width: 64, height: 64, background: '#ecfdf5', color: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 32, height: 32 }}>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+            {/* Modal: Xác nhận chuyển trạng thái */}
+            {confirmNext && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ background: 'white', borderRadius: 14, padding: '2rem', maxWidth: 420, width: '90%', textAlign: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.2)' }}>
+                        <div style={{ width: 56, height: 56, background: '#ecfdf5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+                            <svg fill="none" stroke="#10b981" viewBox="0 0 24 24" style={{ width: 28, height: 28 }}>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/>
                             </svg>
                         </div>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', color: '#111827' }}>Xác nhận đã thanh toán?</h2>
-                        <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
-                            Bạn có chắc chắn khách hàng của đơn <strong>{confirmPaymentOrder.order_code}</strong> đã thanh toán số tiền <strong>{formatMoney(confirmPaymentOrder.total_amount)}</strong> thành công chưa? <br/>Hệ thống sẽ chuyển trạng thái sang đang giao hàng.
+                        <h2 style={{ fontSize: '1.15rem', fontWeight: 'bold', marginBottom: '0.75rem' }}>Xác nhận cập nhật trạng thái?</h2>
+                        <p style={{ color: '#6b7280', marginBottom: '1.5rem', fontSize: 14, lineHeight: 1.6 }}>
+                            Đơn <strong>{confirmNext.order.order_code}</strong> sẽ được chuyển sang:<br/>
+                            <span style={{ color: '#10b981', fontWeight: 700, fontSize: 15 }}>{STATUS_LABELS[confirmNext.nextStatus]}</span><br/>
+                            <small style={{ color: '#9ca3af' }}>Lưu ý: Không thể hoàn tác về trạng thái cũ.</small>
                         </p>
-
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                            <button onClick={() => setConfirmPaymentOrder(null)} style={{ flex: 1, padding: '12px', background: '#f3f4f6', color: '#374151', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-                                Hủy
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                            <button onClick={() => setConfirmNext(null)} style={{ flex: 1, padding: '0.7rem', background: '#f3f4f6', color: '#374151', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>
+                                Hủy bỏ
                             </button>
-                            <button onClick={handleConfirmPayment} style={{ flex: 1, padding: '12px', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.2)' }}>
-                                Xác Nhận
+                            <button onClick={handleAdvanceStatus} disabled={!!updating} style={{ flex: 1, padding: '0.7rem', background: '#10b981', color: 'white', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>
+                                {updating ? 'Đang cập nhật...' : 'Xác nhận'}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Modal Popup: Xác nhận Hủy Đơn Hàng */}
-            {cancelOrder && (
-                <div style={{ display: 'flex', zIndex: 9999, background: 'rgba(0,0,0,0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ background: 'white', padding: '2rem', borderRadius: '1rem', maxWidth: '450px', width: '90%', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
-                        <div style={{ width: 64, height: 64, background: '#fee2e2', color: '#ef4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 32, height: 32 }}>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </div>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', color: '#111827' }}>Xác nhận hủy đơn?</h2>
-                        <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
-                            Bạn có chắc chắn muốn hủy đơn hàng <strong>{cancelOrder.order_code}</strong> không? Thao tác này sẽ không được hoàn tác và đơn hàng sẽ bị đánh dấu hủy.
-                        </p>
 
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                            <button onClick={() => setCancelOrder(null)} style={{ flex: 1, padding: '12px', background: '#f3f4f6', color: '#374151', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-                                Trở về
-                            </button>
-                            <button onClick={handleCancelOrderSubmit} style={{ flex: 1, padding: '12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(239, 68, 68, 0.2)' }}>
-                                Xác Nhận Hủy
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

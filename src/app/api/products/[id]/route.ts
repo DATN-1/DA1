@@ -5,6 +5,7 @@ import {
   deleteProductController,
 } from "@/app/controllers/Product.Controllers";
 import { assertAdminSession } from '@/app/api/_utils/adminAuth';
+import { incrementViewCount } from '@/app/models/product.model';
 
 export async function GET(
   request: Request,
@@ -99,5 +100,22 @@ export async function DELETE(
     return NextResponse.json({ message: "Xóa sản phẩm thành công" });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || "Không thể xóa sản phẩm" }, { status: 400 });
+  }
+}
+
+// Tăng lượt xem khi xem chi tiết sản phẩm
+export async function PATCH(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const productId = Number(id);
+    if (!isNaN(productId) && productId > 0) {
+      await incrementViewCount(productId);
+    }
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ success: false });
   }
 }

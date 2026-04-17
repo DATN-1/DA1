@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { ProductCategoryType, ProductType } from '@/app/type/productType';
 
 export default function useProducts(){
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
     const [products, setProducts] = useState<ProductType[]>([]);
     const [categories, setCategories] = useState<ProductCategoryType[]>([]);
     const [sort, setSort] = useState("popular");
@@ -21,16 +23,45 @@ export default function useProducts(){
 
     useEffect(() => {
         setSearch(searchParams.get("search") || "");
+        
+        const pageFromUrl = Number(searchParams.get("page"));
+        if (pageFromUrl > 0) {
+            setpage(pageFromUrl);
+        }
+
         const selectedFromUrl = (searchParams.get("categories") || "")
             .split(",")
             .map((value) => Number(value.trim()))
             .filter((value) => Number.isInteger(value) && value > 0);
         setSelectedCategoryIds(selectedFromUrl);
+
+        const priceFromUrl = (searchParams.get("prices") || "").split(",").filter(Boolean);
+        if (priceFromUrl.length > 0) setSelectedPriceRanges(priceFromUrl);
+
+        const ratingFromUrl = (searchParams.get("ratings") || "").split(",").map(Number).filter(Boolean);
+        if (ratingFromUrl.length > 0) setSelectedRatings(ratingFromUrl);
+
         setIsReady(true);
-    }, [searchParams]);
+    }, []); // Only run once on mount
+
+    // sync state to URL
+    useEffect(() => {
+        if (!isReady) return;
+        const params = new URLSearchParams();
+        if (search) params.set("search", search);
+        if (page > 1) params.set("page", page.toString());
+        if (selectedCategoryIds.length > 0) params.set("categories", selectedCategoryIds.join(","));
+        if (selectedPriceRanges.length > 0) params.set("prices", selectedPriceRanges.join(","));
+        if (selectedRatings.length > 0) params.set("ratings", selectedRatings.join(","));
+        
+        const newUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+        window.history.replaceState(null, '', newUrl);
+    }, [search, page, selectedCategoryIds, selectedPriceRanges, selectedRatings, isReady, pathname]);
 
     useEffect(() => {
-        setpage(1);
+        if (isReady) {
+            setpage(1);
+        }
     }, [search, selectedCategoryIds, selectedPriceRanges, selectedRatings]);
 
     useEffect(() => {

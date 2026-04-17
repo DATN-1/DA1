@@ -289,7 +289,7 @@ function ProductsContent() {
                           alt={product.name}
                           className="product-image"
                         />
-                        <div className="product-badge">New</div>
+                        <div className="product-badge">Mới</div>
                       </div>
                       <div className="product-info">
                         <h3 className="product-name">{product.name}</h3>

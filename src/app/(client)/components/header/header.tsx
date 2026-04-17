@@ -3,6 +3,7 @@ import Link from "next/link";
 import useCartControllers from "@/app/(client)/cart/useCartControllers";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 type AuthUser = {
   id: number;
@@ -11,8 +12,14 @@ type AuthUser = {
   role: "admin" | "customer";
 };
 
+type Category = {
+  id: number;
+  name: string;
+};
+
 export default function Header(){
     const { cartItems } = useCartControllers();
+    const [categories, setCategories] = useState<Category[]>([]);
     const [cartCount, setCartCount] = useState(0);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [authNotice, setAuthNotice] = useState("");
@@ -52,7 +59,7 @@ export default function Header(){
     
     const handleLogout = async () => {
       try {
-        await fetch('/api/auth/logout', { method: 'POST' });
+        await signOut({ redirect: false });
       } catch (error) {
         console.error('Logout error:', error);
       }
@@ -118,6 +125,25 @@ export default function Header(){
       }
     }
   }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('/api/categories');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && Array.isArray(data)) {
+             setCategories(data);
+          } else if (data && data.success && Array.isArray(data.data)) {
+             setCategories(data.data);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
+    };
+    fetchCategories();
+  }, []);
     
     useEffect(() => {
         // Listen for custom cart update events from other components
@@ -146,33 +172,35 @@ export default function Header(){
       <div className="container">
         <div className="header-content">
           <Link href="/" className="logo">
-            <div className="logo-icon">
-              <svg
-                width="32"
-                height="32"
-                fill="none"
-                stroke="white"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
-              </svg>
+            <div className="logo-icon" style={{ background: 'transparent', padding: 0 }}>
+              <img 
+                src="/images/candle-logo.png" 
+                alt="Aromi Candle Logo"
+                style={{ width: 48, height: 48, objectFit: 'contain' }}
+              />
             </div>
             <div className="logo-text">
-              <h1 className="text-gradient">AROMI CANDLE</h1>
+              <h1 className="text-gradient">AROMI</h1>
               <p>Nến Thơm Cao Cấp</p>
             </div>
           </Link>
 
-          <nav>
+          <nav style={{ whiteSpace: 'nowrap' }}>
             <Link href="/">Trang Chủ</Link>
+            <div className="nav-dropdown-container">
+              <span className="nav-dropdown-trigger">
+                Danh Mục
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              </span>
+              <div className="nav-dropdown-menu">
+                <Link href="/products" className="nav-dropdown-item">Tất cả sản phẩm</Link>
+                {categories.map((cat) => (
+                  <Link key={cat.id} href={`/products?categories=${cat.id}`} className="nav-dropdown-item">
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
             <Link href="/products">Sản Phẩm</Link>
             <Link href="/blog">Bài Viết</Link>
             <Link href="/about">Về Chúng Tôi</Link>
@@ -228,6 +256,12 @@ export default function Header(){
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         Thông tin tài khoản
+                      </Link>
+                      <Link href="/profile/orders" className="user-menu-item" onClick={() => setShowUserMenu(false)}>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        Đơn hàng của tôi
                       </Link>
                       {currentUser.role === "admin" && (
                         <Link href="/admin" className="user-menu-item" onClick={() => setShowUserMenu(false)}>

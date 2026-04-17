@@ -32,7 +32,30 @@ export default function ProfilePage() {
     phone: '',
     recipient_name: '',
     address_line: '',
+    province_code: '',
+    district_code: '',
   });
+
+  const [provinces, setProvinces] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/provinces')
+      .then(res => res.json())
+      .then(data => setProvinces(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (!formData.province_code) {
+      setDistricts([]);
+      return;
+    }
+    fetch(`/api/provinces/${formData.province_code}`)
+      .then(res => res.json())
+      .then(data => setDistricts(data.districts || []))
+      .catch(console.error);
+  }, [formData.province_code]);
 
   useEffect(() => {
     loadUserProfile();
@@ -47,11 +70,7 @@ export default function ProfilePage() {
         return;
       }
 
-      const response = await fetch('/api/auth/profile', {
-        headers: {
-          'Cookie': `user-session=${encodeURIComponent(currentUser)}`
-        }
-      });
+      const response = await fetch('/api/auth/profile');
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -69,6 +88,8 @@ export default function ProfilePage() {
         phone: data.user.phone || '',
         recipient_name: data.address?.recipient_name || '',
         address_line: data.address?.address_line || '',
+        province_code: data.address?.province_code || '',
+        district_code: data.address?.district_code || '',
       });
     } catch (error) {
       console.error('Load profile error:', error);
@@ -94,8 +115,7 @@ export default function ProfilePage() {
       const response = await fetch('/api/auth/profile', {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Cookie': `user-session=${encodeURIComponent(currentUser)}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData),
       });
@@ -154,6 +174,11 @@ export default function ProfilePage() {
         <div className={styles.profileHeader}>
           <h1>Thông Tin Tài Khoản</h1>
           <p>Quản lý thông tin cá nhân và giao hàng</p>
+          <div style={{ marginTop: '1rem' }}>
+            <Link href="/profile/orders" className={styles.btnSecondary} style={{ display: 'inline-block', textDecoration: 'none', background: '#e2e8f0', color: '#0f172a', padding: '0.5rem 1rem', borderRadius: '6px', fontWeight: 500 }}>
+              Xem Đơn Hàng Của Tôi
+            </Link>
+          </div>
         </div>
 
         <form className={styles.profileForm} onSubmit={handleSubmit}>
@@ -226,13 +251,42 @@ export default function ProfilePage() {
             </div>
 
             <div className={styles.formRow}>
-              <label htmlFor="address_line">Địa Chỉ Giao Hàng</label>
+              <label>Tỉnh / Thành phố</label>
+              <select
+                className={styles.formControl}
+                value={formData.province_code}
+                onChange={(e) => setFormData(prev => ({ ...prev, province_code: e.target.value, district_code: '' }))}
+              >
+                <option value="">Chọn Tỉnh / Thành phố</option>
+                {provinces.map((prov) => (
+                  <option key={prov.code} value={prov.code}>{prov.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.formRow}>
+              <label>Quận / Huyện</label>
+              <select
+                className={styles.formControl}
+                value={formData.district_code}
+                onChange={(e) => setFormData(prev => ({ ...prev, district_code: e.target.value }))}
+                disabled={!formData.province_code}
+              >
+                <option value="">Chọn Quận / Huyện</option>
+                {districts.map((dist) => (
+                  <option key={dist.code} value={dist.code}>{dist.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.formRow}>
+              <label htmlFor="address_line">Số nhà, Tên đường, Phường/Xã</label>
               <textarea
                 id="address_line"
                 className={`${styles.formControl} ${styles.textarea}`}
                 value={formData.address_line}
                 onChange={(e) => setFormData(prev => ({ ...prev, address_line: e.target.value }))}
-                placeholder="Nhập địa chỉ giao hàng đầy đủ"
+                placeholder="Nhập địa chỉ giao hàng cụ thể"
                 required
               />
             </div>

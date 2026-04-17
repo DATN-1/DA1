@@ -92,7 +92,7 @@ export default function SettingPage() {
       {message ? <div className="products-feedback products-feedback-success">{message}</div> : null}
       {error   ? <div className="products-feedback products-feedback-error">{error}</div>   : null}
 
-      <form onSubmit={handleSubmit} className="products-panel" style={{ maxWidth: '800px', margin: '0' }}>
+      <form onSubmit={handleSubmit} className="products-panel" style={{ width: '100%', margin: '0' }}>
         
         {/* Nhóm 1: Thông tin chưng */}
         <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#0f172a', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
@@ -159,32 +159,6 @@ export default function SettingPage() {
           />
         </div>
 
-        {/* Nhóm 3: Mạng Xã Hội */}
-        <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#0f172a', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
-          Mạng Xã Hội
-        </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>Facebook URL</label>
-            <input
-              className="products-input"
-              value={form.facebook_url}
-              onChange={(e) => setForm((p) => ({ ...p, facebook_url: e.target.value }))}
-              placeholder="https://facebook.com/aromi..."
-              disabled={submitting}
-            />
-          </div>
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>Instagram URL</label>
-            <input
-              className="products-input"
-              value={form.instagram_url}
-              onChange={(e) => setForm((p) => ({ ...p, instagram_url: e.target.value }))}
-              placeholder="https://instagram.com/aromi..."
-              disabled={submitting}
-            />
-          </div>
-        </div>
 
         <div className="products-actions-form" style={{ marginTop: '2rem', justifyContent: 'flex-start' }}>
           <button type="submit" className="products-btn products-btn-primary" style={{ padding: '0.75rem 2rem' }} disabled={submitting}>

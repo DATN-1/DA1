@@ -3,7 +3,9 @@
 import ProductCarousel from "@/app/controllers/carousel/ProductCarousel";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import useCartControllers  from "@/app/(client)/cart/useCartControllers";
+import useCartControllers from "@/app/(client)/cart/useCartControllers";
+import { renderStars } from "@/app/(client)/components/StarRating";
+
 
 export default function FeaturedProductSection(){
     const [products, setProducts] = useState<any[]>([]);
@@ -50,28 +52,8 @@ export default function FeaturedProductSection(){
                 <p className="product-description">{product.description}</p>
                 <div className="product-footer">
                   <span className="product-price">{new Intl.NumberFormat('vi-VN').format((product.price || 0))} VND</span>
-                  <div className="rating">
-                    <svg className="star" viewBox="0 0 20 20">
-                      <path
-                        d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                    </svg>
-                    <svg className="star" viewBox="0 0 20 20">
-                      <path
-                        d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                    </svg>
-                    <svg className="star" viewBox="0 0 20 20">
-                      <path
-                        d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                    </svg>
-                    <svg className="star" viewBox="0 0 20 20">
-                      <path
-                        d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                    </svg>
-                    <svg className="star" viewBox="0 0 20 20">
-                      <path
-                        d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                    </svg>
-                  </div>
+                  {renderStars(product.average_rating)}
+
                 </div>
                 <div className="sales-count">Đã bán: {product.salesCount}</div>
                 <Link href={`/products/${product.id}`} className="btn btn-gradient btn-full">Xem Chi Tiết</Link>

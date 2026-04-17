@@ -1,5 +1,6 @@
-import '../../../style/about.css';
+import "@/style/about.css";
 import Breadcrumb from "@/app/(client)/components/Breadcrumb";
+import Link from "next/link";
 
 export default function AboutPage() {
     return (
@@ -39,7 +40,7 @@ export default function AboutPage() {
                     </div>
                 </div>
                 <div className="story-image-wrapper">
-                    <img src="../images/lavender.jpg" alt="Our Story" className="story-image" />
+                    <img src="../images/lavender.jpg" alt="Câu chuyện của chúng tôi" className="story-image" />
                     <div className="experience-badge">
                         <p className="years">4+</p>
                         <p>Năm kinh nghiệm</p>
@@ -107,7 +108,7 @@ export default function AboutPage() {
                         <div className="team-overlay"></div>
                     </div>
                     <h3>Nguyễn Thị Mai</h3>
-                    <p>Founder & CEO</p>
+                    <p>Nhà Sáng Lập &amp; Giám Đốc Điều Hành</p>
                 </div>
                 <div className="team-card">
                     <div className="team-image-wrapper">
@@ -115,7 +116,7 @@ export default function AboutPage() {
                         <div className="team-overlay"></div>
                     </div>
                     <h3>Trần Văn Nam</h3>
-                    <p>Master Chandler</p>
+                    <p>Nghệ Nhân Làm Nến</p>
                 </div>
                 <div className="team-card">
                     <div className="team-image-wrapper">
@@ -123,7 +124,7 @@ export default function AboutPage() {
                         <div className="team-overlay"></div>
                     </div>
                     <h3>Lê Thị Hoa</h3>
-                    <p>Creative Director</p>
+                    <p>Giám Đốc Sáng Tạo</p>
                 </div>
                 <div className="team-card">
                     <div className="team-image-wrapper">
@@ -131,7 +132,7 @@ export default function AboutPage() {
                         <div className="team-overlay"></div>
                     </div>
                     <h3>Phạm Minh Tuấn</h3>
-                    <p>Quality Manager</p>
+                    <p>Quản Lý Chất Lượng</p>
                 </div>
             </div>
         </div>
@@ -166,7 +167,7 @@ export default function AboutPage() {
         <div className="container">
             <h2>Sẵn Sàng Khám Phá?</h2>
             <p>Hãy để Aromi Candle mang đến những trải nghiệm mùi hương tuyệt vời cho không gian sống của bạn</p>
-            <a href="products.html" className="btn btn-primary" style={{padding: "1.25rem 3rem", fontSize: "1.25rem"}}>Khám Phá Sản Phẩm</a>
+            <Link href="/products" className="btn btn-primary" style={{padding: "1.25rem 3rem", fontSize: "1.25rem"}}>Khám Phá Sản Phẩm</Link>
         </div>
     </section>
 

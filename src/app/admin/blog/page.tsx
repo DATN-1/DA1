@@ -31,6 +31,7 @@ function toSlug(str: string) {
 
 export default function BlogAdminPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -57,7 +58,15 @@ export default function BlogAdminPage() {
     }
   };
 
-  useEffect(() => { loadBlogs(); }, []);
+  const loadCategories = async () => {
+    try {
+      const res = await fetch('/api/blog-categories');
+      const data = await res.json();
+      if (Array.isArray(data)) setCategories(data.filter((c: any) => c.status === 'active'));
+    } catch {}
+  };
+
+  useEffect(() => { loadBlogs(); loadCategories(); }, []);
 
   const resetForm = () => { setEditingId(null); setForm(defaultForm); };
 
@@ -172,13 +181,17 @@ export default function BlogAdminPage() {
                 onChange={(e) => setForm(p => ({ ...p, slug: e.target.value }))}
                 placeholder="Đường dẫn (slug)"
               />
-              <input
+              <select
                 className="products-input"
                 value={form.category}
                 onChange={(e) => setForm(p => ({ ...p, category: e.target.value }))}
-                placeholder="Chuyên mục (vd: Thư giãn)"
                 required
-              />
+              >
+                <option value="">-- Chọn danh mục --</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.name}>{c.name}</option>
+                ))}
+              </select>
             </div>
             
             <input

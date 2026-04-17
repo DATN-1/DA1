@@ -13,6 +13,12 @@ export async function getBlogBySlug(slug: string): Promise<Blog | null> {
     return blogs.length > 0 ? blogs[0] : null;
 }
 
+export async function getBlogById(id: number): Promise<Blog | null> {
+    const [rows] = await pool.query('SELECT * FROM blogs WHERE id = ? LIMIT 1', [id]);
+    const blogs = rows as Blog[];
+    return blogs.length > 0 ? blogs[0] : null;
+}
+
 export async function createBlog(data: Omit<Blog, 'id' | 'created_at'>) {
     const [result] = await pool.query<ResultSetHeader>(
         `INSERT INTO blogs (title, slug, category, summary, content, image_url, author, status) 

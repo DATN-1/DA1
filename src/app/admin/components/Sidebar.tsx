@@ -54,8 +54,30 @@ export default function Sidebar() {
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
-                        <span>Sản Phẩm</span>
+                        <span>Sản Phẩm 
+                            <svg className="svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </span>
                     </Link>
+                    <ul className="nav-sub-links">
+                        <li className="nav-sub-item">
+                            <Link href="/admin/products/create">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Thêm Mới</span>
+                            </Link>
+                        </li>
+                        <li className="nav-sub-item">
+                            <Link href="/admin/products">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Cập Nhật</span>
+                            </Link>
+                        </li>
+                    </ul>
                 </li>
 
                 <li className={`nav-item ${isActiveRoute("/admin/categories") ? "active" : ""}`}>
@@ -63,8 +85,30 @@ export default function Sidebar() {
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z" />
                         </svg>
-                        <span>Danh Mục</span>
+                        <span>Danh Mục
+                            <svg className="svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </span>
                     </Link>
+                    <ul className="nav-sub-links">
+                        <li className="nav-sub-item">
+                            <Link href="/admin/categories/create">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Thêm Mới</span>
+                            </Link>
+                        </li>
+                        <li className="nav-sub-item">
+                            <Link href="/admin/categories">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Cập Nhật</span>
+                            </Link>
+                        </li>
+                    </ul>
                 </li>
 
                 <li className={`nav-item ${isActiveRoute("/admin/brands") ? "active" : ""}`}>
@@ -72,8 +116,30 @@ export default function Sidebar() {
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M3 11l8-8h6v6l-8 8-6-6z" />
                         </svg>
-                        <span>Thương Hiệu</span>
+                        <span>Thương Hiệu
+                            <svg className="svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </span>
                     </Link>
+                    <ul className="nav-sub-links">
+                        <li className="nav-sub-item">
+                            <Link href="/admin/brands/create">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Thêm Mới</span>
+                            </Link>
+                        </li>
+                        <li className="nav-sub-item">
+                            <Link href="/admin/brands">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Cập Nhật</span>
+                            </Link>
+                        </li>
+                    </ul>
                 </li>
 
                 <li className={`nav-item ${isActiveRoute("/admin/order") ? "active" : ""}`}>
@@ -99,8 +165,30 @@ export default function Sidebar() {
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2zM14 4v4h4" />
                         </svg>
-                        <span>Bài Viết</span>
+                        <span>Bài Viết
+                            <svg className="svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </span>
                     </Link>
+                    <ul className="nav-sub-links">
+                        <li className="nav-sub-item">
+                            <Link href="/admin/blog/create">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Thêm Mới</span>
+                            </Link>
+                        </li>
+                        <li className="nav-sub-item">
+                            <Link href="/admin/blog">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Cập Nhật</span>
+                            </Link>
+                        </li>
+                    </ul>
                 </li>
 
                 <li className={`nav-item ${isActiveRoute("/admin/banner") ? "active" : ""}`}>
@@ -108,8 +196,30 @@ export default function Sidebar() {
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h10M4 18h10" />
                         </svg>
-                        <span>Banner</span>
+                        <span>Banner
+                            <svg className="svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </span>
                     </Link>
+                    <ul className="nav-sub-links">
+                        <li className="nav-sub-item">
+                            <Link href="/admin/banner/create">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Thêm Mới</span>
+                            </Link>
+                        </li>
+                        <li className="nav-sub-item">
+                            <Link href="/admin/banner">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Cập Nhật</span>
+                            </Link>
+                        </li>
+                    </ul>
                 </li>
 
                 <li className={`nav-item ${isActiveRoute("/admin/setting") ? "active" : ""}`}>

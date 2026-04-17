@@ -160,7 +160,7 @@ export async function findProductVariants(productId: number) {
 export async function findProductGallery(productId: number, rawImage: unknown) {
   const [rows]: any = await pool.query(
     `SELECT image
-     FROM variant_images
+     FROM product_variants
      WHERE product_id = ?
      ORDER BY id ASC`,
     [productId]
@@ -171,9 +171,6 @@ export async function findProductGallery(productId: number, rawImage: unknown) {
     ? rows.map((row: { image: string }) => row.image).filter(Boolean)
     : [];
 
-  // Kiểm tra xem có ảnh biến thể từ DB không
-  // Nếu có, trộn ảnh cơ sở với ảnh biến thể
-  // Nếu không, chỉ dùng ảnh cơ sở
   const hasVariantImages = Array.isArray(variantImages) && variantImages.length > 0;
   const combinedImages = hasVariantImages 
     ? [...new Set([...baseImages, ...variantImages])]
